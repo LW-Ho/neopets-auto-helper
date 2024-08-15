@@ -2,6 +2,10 @@ NEO_HOMEPAGE = "https://www.neopets.com/"
 NEO_LOGIN = "https://www.neopets.com/login/"
 NEO_LOGIN_REQUEST = "https://www.neopets.com/login.phtml"
 NEO_LOGOUT_REQUEST = "https://www.neopets.com/logout.phtml"
+NEO_NEOPASS_LOGIN = "https://neopass.neopets.com/login"
+
+# PETLIST
+NEO_PET_LIST_QR = "https://www.neopets.com/quickref.phtml"
 
 #INVENTORY
 NEO_INVENTORY_QS = "https://www.neopets.com/quickstock.phtml"
@@ -70,15 +74,3 @@ NEO_HOSPITAL_VOLUNTEER_JOIN = "https://www.neopets.com/np-templates/ajax/plots/h
 # PetLab
 NEO_PET_LAB2 = "https://www.neopets.com/lab2.phtml"
 NEO_PET_LAB2_PROCESS = "https://www.neopets.com/process_lab2.phtml"
-
-#POST requests
-HEADERS = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36',
-        'Upgrade-Insecure-Requests': "1",
-        "Host": "www.neopets.com",
-        "Cache-Control": "max-age=0",
-        "Connection": "keep-alive",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Encoding": "gzip, deflate",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
-        }
