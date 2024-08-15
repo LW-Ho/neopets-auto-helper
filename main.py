@@ -1,68 +1,96 @@
 import asyncio
 from random import randrange
-import re
 from playwright.async_api import Playwright, async_playwright, expect
 from playwright.async_api import Browser
 
-import logging
-
 from app.account import Account
-import urls.neopets_urls as NEOPETS_URLS
+import dailies.jelly as JELLY
+import dailies.omelette as OMELETTE
+import dailies.fishing as FISHING
+import dailies.springs as SPRINGS
+import dailies.fruit as FRUIT
+import dailies.tvw_hosptial as TVW_HOSPITAL
+import dailies.trudys as TRUDYS
+import utility.quick_stock as QS
+from app.env import NEOACCOUNT_DATA, NEOAccount
 
-_LOGGER = logging.getLogger(__name__)
+async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
+    all_result = {}
+    try:
+        browser: Browser = await playwright.chromium.launch(headless=True, slow_mo=100)
+        context = await browser.new_context(viewport={"width":800,"height":600})
+        page = await context.new_page()
 
-USERNAME = ""
-PASSWORD = ""
-ACTIVE_PET_NAME = ""
-OMELETTE = True
-FISHING = True
-SPRINGS = True
-FRUIT = True
+        neopets: Account = Account(
+            neoaccount.USERNAME, 
+            neoaccount.PASSWORD, 
+            neoaccount.ACTIVE_PET_NAME, 
+            legacy=neoaccount.LEGACY,
+            neopass_username=neoaccount.NEOPASS_USERNAME
+            )
+        print('Login...')
+        r = await neopets.login(context, page)
+        all_result['Login'] = r
 
-logging.getLogger().setLevel(logging.INFO)
 
-async def run(playwright: Playwright) -> None:
-    browser: Browser = await playwright.chromium.launch(headless=False, slow_mo=1000)
-    context = await browser.new_context(viewport={"width":800,"height":600})
-    page = await context.new_page()
+        async with asyncio.TaskGroup() as tg:
+            tasks = []
 
-    neopets: Account = Account(USERNAME, PASSWORD, ACTIVE_PET_NAME)
-    print('Goto Login')
-    await neopets.login(context, page)
+            if neoaccount.TRUDYS_FLAG:
+                task = tg.create_task(TRUDYS.get(context, page), name="TRUDYS Task")
+                tasks.append(task)
 
-    if OMELETTE:
-        await page.goto(NEOPETS_URLS.NEO_OMELETTE)
-        await page.get_by_role("button", name="Grab some Omelette").click()
-        await asyncio.sleep(15)
+            if neoaccount.JELLY_FLAG:
+                task = tg.create_task(JELLY.get(context, page), name="JELLY Task")
+                tasks.append(task)
 
-    if FISHING:
-        await page.goto(NEOPETS_URLS.NEO_FISHING)
-        await page.get_by_role("button", name="Reel In Your Line").click()
-        await asyncio.sleep(15)
+            if neoaccount.OMELETTE_FLAG:
+                task = tg.create_task(OMELETTE.get(context, page), name="OMELETTE Task")
+                tasks.append(task)
 
-    if SPRINGS:
-        await page.goto(NEOPETS_URLS.NEO_SPRINGS)
-        await page.get_by_role("button", name="Heal my Pets").click()
-        await asyncio.sleep(15)
+            if neoaccount.FISHING_FLAG:
+                task = tg.create_task(FISHING.get(context, page), name="FISHING Task")
+                tasks.append(task)
 
-    if FRUIT:
-        try:
-            await page.goto(NEOPETS_URLS.NEO_FRUIT)
-            await page.get_by_role('button', name='Spin, spin, spin!').click()
-            await asyncio.sleep(15)
-        except Exception as e:
-            print(f"FRUIT Complete.")
+            if neoaccount.SPRINGS_FLAG:
+                task = tg.create_task(SPRINGS.get(context, page), name="SPRINGS Task")
+                tasks.append(task)
 
-    await context.close()
-    await browser.close()
+            if neoaccount.FRUIT_FLAG:
+                task = tg.create_task(FRUIT.get(context, page), name="SPRINGS Task")
+                tasks.append(task)
+
+            if neoaccount.TVW_HOSPITAL_FLAG:
+                task = tg.create_task(TVW_HOSPITAL.get(context, page, [neoaccount.TVW_HP_PET_NAME_1, neoaccount.TVW_HP_PET_NAME_2]), name="TVW_HOSPITAL Task")
+                tasks.append(task)
+            
+
+            for task in tasks:
+                result = await task  # waiting for task all done.
+                print(f"Task {task.get_name()} completed with result: {result}")
+                all_result[task.get_name()] = result
+
+        if neoaccount.AUTO_SAVE_TO_SAFTY_BOX:
+            result = await QS.run(context, page)
+            all_result['safty box'] = result
+
+        await context.close()
+        await browser.close()
+    except Exception as e:
+        print(f"{e}")
+
+    return {neoaccount.USERNAME: all_result}
 
 async def main() -> None:
+    _report = []
     async with async_playwright() as playwright:
-        await run(playwright)
+        tasks = [run(playwright, account) for account in NEOACCOUNT_DATA.accounts]
+        result = await asyncio.gather(*tasks)
+        _report.append(result)
 
     mins = randrange(200,1200)
 
-    print('Work done, sleeping time '+str(mins)+' ... ')
+    print(f'Work done, {_report} sleeping time '+str(mins)+' ... ')
     await asyncio.sleep(mins)
 
 if __name__ == "__main__":
