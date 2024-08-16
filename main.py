@@ -1,5 +1,4 @@
 import asyncio
-from random import randrange
 from playwright.async_api import Playwright, async_playwright, expect
 from playwright.async_api import Browser
 
@@ -12,12 +11,13 @@ import dailies.fruit as FRUIT
 import dailies.tvw_hosptial as TVW_HOSPITAL
 import dailies.trudys as TRUDYS
 import utility.quick_stock as QS
+from utility import random_sleep
 from app.env import NEOACCOUNT_DATA, NEOAccount
 
 async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
     all_result = {}
     try:
-        browser: Browser = await playwright.chromium.launch(headless=True, slow_mo=100)
+        browser: Browser = await playwright.chromium.launch(headless=False, slow_mo=100)
         context = await browser.new_context(viewport={"width":800,"height":600})
         page = await context.new_page()
 
@@ -88,10 +88,9 @@ async def main() -> None:
         result = await asyncio.gather(*tasks)
         _report.append(result)
 
-    mins = randrange(200,1200)
-
-    print(f'Work done, {_report} sleeping time '+str(mins)+' ... ')
-    await asyncio.sleep(mins)
+    _sleep_interval = 3600
+    print(f'Work done, {_report} ')
+    await random_sleep(_sleep_interval+200,_sleep_interval+1200)
 
 if __name__ == "__main__":
     while True:
