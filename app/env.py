@@ -5,12 +5,14 @@ from typing import List
 @dataclass
 class NEOAccount:
     LEGACY: bool
+    PIN_CODE: str
     USERNAME: str
     PASSWORD: str
     NEOPASS_USERNAME: str
     ACTIVE_PET_NAME: str
     TVW_HP_PET_NAME_1: str
     TVW_HP_PET_NAME_2: str
+    BANK_INTEREST_FLAG: bool
     TRUDYS_FLAG: bool
     JELLY_FLAG: bool
     OMELETTE_FLAG: bool
