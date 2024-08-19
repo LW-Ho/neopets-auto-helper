@@ -3,14 +3,15 @@ from playwright.async_api import Playwright, async_playwright, expect
 from playwright.async_api import Browser
 
 from app.account import Account
-import dailies.jelly as JELLY
-import dailies.omelette as OMELETTE
-import dailies.fishing as FISHING
-import dailies.springs as SPRINGS
-import dailies.fruit as FRUIT
-import dailies.tvw_hosptial as TVW_HOSPITAL
-import dailies.trudys as TRUDYS
-import utility.quick_stock as QS
+from dailies import jelly as JELLY, \
+    omelette as OMELETTE, \
+    fishing as FISHING, \
+    springs as SPRINGS, \
+    fruit as FRUIT, \
+    tvw_hosptial as TVW_HOSPITAL, \
+    trudys as TRUDYS
+from utility import quick_stock as QS, random_sleep
+from utility.bank import Bank
 from utility import random_sleep
 from app.env import NEOACCOUNT_DATA, NEOAccount
 
@@ -35,6 +36,14 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
 
         async with asyncio.TaskGroup() as tg:
             tasks = []
+
+            if neoaccount.BANK_INTEREST_FLAG:
+                bank = Bank(context, page)
+                if neoaccount.PIN_CODE:
+                    bank.set_pin_code(neoaccount.PIN_CODE)
+
+                result = await bank.collect_interest()
+                all_result['bank_collect_interest'] = result
 
             if neoaccount.TRUDYS_FLAG:
                 task = tg.create_task(TRUDYS.get(context, page), name="TRUDYS Task")
