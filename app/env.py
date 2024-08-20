@@ -19,7 +19,7 @@ class NEOAccount:
     FISHING_FLAG: bool
     SPRINGS_FLAG: bool
     FRUIT_FLAG: bool
-    TVW_HOSPITAL_FLAG: bool
+    TVW_EVENT_FLAG: bool
     AUTO_SAVE_TO_SAFTY_BOX: bool
 
 @dataclass

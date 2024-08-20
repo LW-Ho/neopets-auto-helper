@@ -4,7 +4,7 @@ from urllib.parse import quote_plus, urlencode
 from playwright.async_api import APIResponse
 from playwright.async_api import Page, BrowserContext
 import urls.neopets_urls as NEOPETS_URLS
-UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"
+UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0"
 
 def check_for_announcement(response):
     if 'class="bg-pattern"' in response:
@@ -59,6 +59,41 @@ async def post(payload: dict, url: str, context: BrowserContext, page: Page, ref
     response: APIResponse = await page.request.post(
         url=url,
         form=payload,
+        headers=headers
+    )
+
+    r = await response.text()
+
+    return r
+
+async def post_form_data(payload: dict, url: str, context: BrowserContext, page: Page, referer: str) -> str:
+    headers = {
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate, br, zstd",
+            "Accept-Language": "en-US,en;q=0.9,zh-TW;q=0.8,zh;q=0.7",
+            #"Cache-Control": "max-age=0", #Cache control doesn't exist for refresh? or going to quickstock
+            "Connection": "keep-alive",
+            "Host": "www.neopets.com",
+            'Upgrade-Insecure-Requests': "1",
+            'User-Agent': UA,
+            "Sec-Ch-Ua": '"Not)A;Brand";v="99", "Microsoft Edge";v="127", "Chromium";v="127"',
+            "Sec-Ch-Ua-Mobile": "?0",
+            "Sec-Ch-Ua-Platform": "Windows",
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "same-origin",
+            'x-requested-with': 'XMLHttpRequest'
+            }
+
+    s = urlencode(payload, quote_via=quote_plus)
+    headers['Content-Length'] = str(len(s))
+    # headers['Content-Type'] = "application/x-www-form-urlencoded"
+    headers["Origin"] = NEOPETS_URLS.NEO_HOMEPAGE
+    headers['Referer'] = referer
+
+    response: APIResponse = await page.request.post(
+        url=url,
+        multipart=payload,
         headers=headers
     )
 

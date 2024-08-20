@@ -1,7 +1,7 @@
 {
     "account_1": {
-        "LEGACY": false,
-        "PIN_CODE": "",
+        "LEGACY": true,
+	    "PIN_CODE": "",
         "USERNAME": "",
         "PASSWORD": "",
         "NEOPASS_USERNAME": "",
@@ -15,7 +15,7 @@
         "FISHING_FLAG": true,
         "SPRINGS_FLAG": true,
         "FRUIT_FLAG": true,
-        "TVW_HOSPITAL_FLAG": true,
+        "TVW_EVENT_FLAG": true,
         "AUTO_SAVE_TO_SAFTY_BOX": true
     }
 }
