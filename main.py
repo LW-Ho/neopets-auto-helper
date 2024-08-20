@@ -17,6 +17,7 @@ from app.env import NEOACCOUNT_DATA, NEOAccount
 
 async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
     all_result = {}
+    neopets: Account = None
     try:
         browser: Browser = await playwright.chromium.launch(headless=False, slow_mo=100)
         context = await browser.new_context(viewport={"width":800,"height":600})
@@ -29,7 +30,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
             legacy=neoaccount.LEGACY,
             neopass_username=neoaccount.NEOPASS_USERNAME
             )
-        print('Login...')
+        print(f'{neopets._username} / {neopets._neopass_username} Login...')
         r = await neopets.login(context, page)
         all_result['Login'] = r
 
@@ -66,7 +67,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                 tasks.append(task)
 
             if neoaccount.FRUIT_FLAG:
-                task = tg.create_task(FRUIT.get(context, page), name="SPRINGS Task")
+                task = tg.create_task(FRUIT.get(context, page), name="FRUIT Task")
                 tasks.append(task)
 
             if neoaccount.TVW_HOSPITAL_FLAG:
@@ -82,6 +83,9 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
         if neoaccount.AUTO_SAVE_TO_SAFTY_BOX:
             result = await QS.run(context, page)
             all_result['safty box'] = result
+
+        if neopets and False:
+            await neopets.logout(context, page)
 
         await context.close()
         await browser.close()

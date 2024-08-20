@@ -1,4 +1,3 @@
-import asyncio
 from playwright.async_api import Page, BrowserContext
 import urls.neopets_urls as NEOPETS_URLS
 from utility import random_sleep
