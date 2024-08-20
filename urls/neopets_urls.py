@@ -71,6 +71,10 @@ NEO_HOSPITAL_VOLUNTEER_HOME_PAGE = "https://www.neopets.com/hospital/volunteer.p
 NEO_HOSPITAL_VOLUNTEER_COMPLETE = "https://www.neopets.com/np-templates/ajax/plots/hospital/volunteer-finish.php" # POST _ref_ck: ce4f30f5b0984a33bca9a16f96d713a8 / id: 8263402
 NEO_HOSPITAL_VOLUNTEER_GET_PETS = "https://www.neopets.com/np-templates/ajax/plots/hospital/get-pets.php" # fight_id: 3
 NEO_HOSPITAL_VOLUNTEER_JOIN = "https://www.neopets.com/np-templates/ajax/plots/hospital/volunteer-join.php" # fight_id: 3 / pet_name: 83leofsfds 
+
+# The Void Within Collect void
+NEO_TVW_COLLECT_VOID = "https://www.neopets.com/np-templates/ajax/plots/tvw/void-collection/collect_void.php"
+
 # PetLab
 NEO_PET_LAB2 = "https://www.neopets.com/lab2.phtml"
 NEO_PET_LAB2_PROCESS = "https://www.neopets.com/process_lab2.phtml"
