@@ -9,6 +9,7 @@ async def get(context: BrowserContext, page: Page) -> bool:
         await _page.goto(NEOPETS_URLS.NEO_FRUIT)
         await _page.get_by_role("button", name="Spin, spin, spin!").click()
         await random_sleep()
+        await _page.close()
         return True
     except Exception as e:
         print("get_friut complete")

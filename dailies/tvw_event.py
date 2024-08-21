@@ -42,8 +42,8 @@ async def get_hosptial(context: BrowserContext, page: Page, pets_list: list) -> 
                 print(f"Join error")
                 await _page.goto(NEOPETS_URLS.NEO_HOSPITAL_VOLUNTEER_HOME_PAGE)
 
-            
         await random_sleep()
+        _page.close()
         return True
     except Exception as e:
         print("get_tvw_hospital complete")
@@ -53,16 +53,43 @@ async def get_hosptial(context: BrowserContext, page: Page, pets_list: list) -> 
 async def get_void_location(context: BrowserContext, page: Page) -> bool:
     await random_sleep()
     void_essence_location_map_link = [
-        "http://neopets.com/faerieland/faeriecity.phtml"
-        "http://neopets.com/space/index.phtml",
-        "http://neopets.com/winter/terrormountain.phtml"
+        "https://www.neopets.com/winter/terrormountain.phtml",
+        "https://www.neopets.com/medieval/index_farm.phtml",
+        "https://www.neopets.com/altador/index.phtml",
+        "https://www.neopets.com/worlds/index_kikolake.phtml",
+        "https://www.neopets.com/shenkuu/index.phtml",
+        "https://www.neopets.com/medieval/brightvale.phtml",
+        "https://www.neopets.com/objects.phtml",
+        "https://www.neopets.com/market_map.phtml",
+        "https://www.neopets.com/pirates/warfwharf.phtml",
+        "https://www.neopets.com/desert/sakhmet.phtml",
+        "https://www.neopets.com/medieval/index_castle.phtml",
+        "https://www.neopets.com/tropical/index.phtml",
+        "https://www.neopets.com/desert/index.phtml",
+        "https://www.neopets.com/space/recreation.phtml",
+        "https://www.neopets.com/winter/icecaves.phtml",
+        "https://www.neopets.com/faerieland/index.phtml",
+        "https://www.neopets.com/magma/index.phtml",
+        "https://www.neopets.com/medieval/index_evil.phtml",
+        "https://www.neopets.com/water/index.phtml",
+        "https://www.neopets.com/faerieland/faeriecity.phtml",
+        "https://www.neopets.com/prehistoric/index.phtml",
+        "https://www.neopets.com/water/index_ruins.phtml",
+        "https://www.neopets.com/market_bazaar.phtml",
+        "https://www.neopets.com/worlds/index_roo.phtml",
+        "https://www.neopets.com/market_plaza.phtml",
+        "https://www.neopets.com/pirates/index.phtml",
+        "https://www.neopets.com/magma/caves.phtml",
+        "https://www.neopets.com/worlds/index_geraptiku.phtml",
+        "https://www.neopets.com/island/index.phtml",
+        "https://www.neopets.com/medieval/index.phtml",
+        "https://www.neopets.com/halloween/index.phtml",
+        "https://www.neopets.com/halloween/index_fair.phtml",
+        "https://www.neopets.com/space/hangar.phtml",
+        "https://www.neopets.com/space/index.phtml",
+        "https://www.neopets.com/winter/index.phtml",
+        "https://www.neopets.com/halloween/neovia.phtml"
     ]
-    # "http://neopets.com/halloween/neovia.phtml",
-    # "http://neopets.com/desert/index.phtml",
-    # "http://neopets.com/market_plaza.phtml"
-    # "http://neopets.com/shenkuu/index.phtml"
-    # "http://neopets.com/worlds/index_geraptiku.phtml"
-    # "http://neopets.com/water/index_ruins.phtml"
 
     try:
         for _map in void_essence_location_map_link:
@@ -101,6 +128,8 @@ async def get_void_location(context: BrowserContext, page: Page) -> bool:
                     await random_sleep()
 
                     print(rep)
+            else:
+                _page.close()
 
         return True
     except Exception as e:

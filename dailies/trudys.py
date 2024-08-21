@@ -17,7 +17,7 @@ async def get(context: BrowserContext, page: Page) -> bool:
         post_payload = {"action": "prizeclaimed"}
         rep = await web.post(post_payload, NEOPETS_URLS.NEO_TRUDYS_SPIN, context, _page, NEOPETS_URLS.NEO_TRUDYS)
         await random_sleep(5,10)
-
+        await _page.close()
         return True
     except Exception as e:
         print(f"get_trudys complete {e}")

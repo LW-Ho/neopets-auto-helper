@@ -47,7 +47,8 @@ class Account:
                 return True
             except Exception as e:
                 print(f"{self._username} Login error {e}")
-                
+            
+            await random_sleep(10, 240)
             count += 1
         
         return False
