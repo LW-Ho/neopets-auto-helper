@@ -32,6 +32,9 @@ python main.py
     - Void Location
 
 # Coming Features
+- Buy Stoks
+- Pet Lab
+- Petpet Lab
 - Shop Wizard
 - Training School
     - Cap'n Threelegs' Swashbuckling Academy
