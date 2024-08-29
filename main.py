@@ -7,7 +7,6 @@ import time
 import traceback
 from playwright.async_api import Playwright, async_playwright
 from playwright.async_api import Browser, BrowserContext, Page
-from playwright_stealth import stealth_async
 
 from app.account import Account
 from dailies import jelly as JELLY, \
