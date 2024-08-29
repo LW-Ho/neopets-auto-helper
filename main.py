@@ -6,7 +6,8 @@ from os.path import exists
 import time
 import traceback
 from playwright.async_api import Playwright, async_playwright
-from playwright.async_api import Browser
+from playwright.async_api import Browser, BrowserContext, Page
+from playwright_stealth import stealth_async
 
 from app.account import Account
 from dailies import jelly as JELLY, \
@@ -38,9 +39,14 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
     all_result = {}
     neopets: Account = None
     try:
-        browser: Browser = await playwright.chromium.launch(headless=False, slow_mo=100)
-        context = await browser.new_context(viewport={"width":800,"height":600})
-        page = await context.new_page()
+        browser: Browser = await playwright.chromium.launch(
+            headless=False,
+            slow_mo=100
+            )
+        context: BrowserContext = await browser.new_context(
+            viewport={"width":800,"height":600}
+            )
+        page: Page = await context.new_page()
 
         neopets: Account = Account(
             neoaccount.USERNAME, 
@@ -68,7 +74,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                     result = await bank.collect_interest()
                     all_result[key] = result
 
-                    TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(23)
+                    TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(4)
 
             create_task_if_needed(
                 neoaccount.TRUDYS_FLAG, "TRUDYS", lambda: TRUDYS.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
@@ -109,7 +115,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                         if _time_expiry is None or time.time() > _time_expiry:
                             _time_hours = 23
                             if task.get_name() == "TRUDYS":
-                                _time_hours = 23
+                                _time_hours = 4
                             elif task.get_name() == "JELLY":
                                 _time_hours = 23
                             elif task.get_name() == "OMELETTE":
@@ -119,11 +125,11 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                             elif task.get_name() == "SPRINGS":
                                 _time_hours = 1
                             elif task.get_name() == "FRUIT":
-                                _time_hours = 23
+                                _time_hours = 4
                             elif task.get_name() == "TVW_HOSPITAL":
-                                _time_hours = 5
+                                _time_hours = 2
                             elif task.get_name() == "TVW_VOID_LOCATION":
-                                _time_hours = 23
+                                _time_hours = 9
 
                             TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][task.get_name()] = TS.get_timestamp(_time_hours)
 
@@ -135,7 +141,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
             result = await QS.run(context, page)
             all_result['safty box'] = result
 
-        if neopets and False:
+        if neopets:
             await neopets.logout(context, page)
 
         await context.close()
