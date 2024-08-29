@@ -30,9 +30,9 @@ python main.py
 - The Void Within Event
     - Hosiptal
     - Void Location
+- Buy Stoks
 
 # Coming Features
-- Buy Stoks
 - Pet Lab
 - Petpet Lab
 - Shop Wizard
