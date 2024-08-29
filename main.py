@@ -16,7 +16,7 @@ from dailies import jelly as JELLY, \
     fruit as FRUIT, \
     tvw_event as TVW_EVENT, \
     trudys as TRUDYS
-from utility import quick_stock as QS, random_sleep, timestamp as TS
+from utility import quick_stock as QS, random_sleep, timestamp as TS, stocks
 from utility.bank import Bank
 from app.env import NEOACCOUNT_DATA, NEOAccount
 
@@ -77,6 +77,18 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                         all_result[key] = result
 
                         TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(4)
+                
+                if neoaccount.BUY_STOCK_FLAG:
+                    key = "but_stocks"
+                    time_expiry = TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME].get(key)
+                    if time_expiry is None or time.time() > time_expiry:
+
+                        stock = stocks.Stock(context, page, neoaccount.PIN_CODE)
+                        await stock.buy_stock()
+
+                        all_result[key] = result
+                        TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(6)
+
 
                 create_task_if_needed(
                     neoaccount.TRUDYS_FLAG, "TRUDYS", lambda: TRUDYS.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]

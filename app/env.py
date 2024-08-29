@@ -13,6 +13,7 @@ class NEOAccount:
     TVW_HP_PET_NAME_1: str
     TVW_HP_PET_NAME_2: str
     BANK_INTEREST_FLAG: bool
+    BUY_STOCK_FLAG: bool
     TRUDYS_FLAG: bool
     JELLY_FLAG: bool
     OMELETTE_FLAG: bool
@@ -26,7 +27,7 @@ class NEOAccount:
 class NEOAccountsData:
     accounts: List[NEOAccount] 
 
-with open('accounts.json', 'r', encoding='utf-8') as file:
+with open('test_accounts.json', 'r', encoding='utf-8') as file:
     data = json.load(file)
 
 accounts = [NEOAccount(**account_data) for account_data in data.values()]
