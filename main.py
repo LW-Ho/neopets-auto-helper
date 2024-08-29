@@ -58,83 +58,88 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
         r = await neopets.login(context, page)
         all_result['Login'] = r
 
+        if TIME_EXPIRY.get(neoaccount.ACTIVE_PET_NAME) is None:
+            TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME] = {}
 
-        async with asyncio.TaskGroup() as tg:
-            tasks = []
+        try:
+            async with asyncio.TaskGroup() as tg:
+                tasks = []
 
-            if neoaccount.BANK_INTEREST_FLAG:
-                key = "bank_collect_interest"
-                time_expiry = TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME].get(key)
-                if time_expiry is None or time.time() > time_expiry:
-                    bank = Bank(context, page)
-                    if neoaccount.PIN_CODE:
-                        bank.set_pin_code(neoaccount.PIN_CODE)
+                if neoaccount.BANK_INTEREST_FLAG:
+                    key = "bank_collect_interest"
+                    time_expiry = TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME].get(key)
+                    if time_expiry is None or time.time() > time_expiry:
+                        bank = Bank(context, page)
+                        if neoaccount.PIN_CODE:
+                            bank.set_pin_code(neoaccount.PIN_CODE)
 
-                    result = await bank.collect_interest()
-                    all_result[key] = result
+                        result = await bank.collect_interest()
+                        all_result[key] = result
 
-                    TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(4)
+                        TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(4)
 
-            create_task_if_needed(
-                neoaccount.TRUDYS_FLAG, "TRUDYS", lambda: TRUDYS.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
-            )
-            create_task_if_needed(
-                neoaccount.JELLY_FLAG, "JELLY", lambda: JELLY.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
-            )
-            create_task_if_needed(
-                neoaccount.OMELETTE_FLAG, "OMELETTE", lambda: OMELETTE.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
-            )
-            create_task_if_needed(
-                neoaccount.FISHING_FLAG, "FISHING", lambda: FISHING.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
-            )
-            create_task_if_needed(
-                neoaccount.SPRINGS_FLAG, "SPRINGS", lambda: SPRINGS.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
-            )
-            create_task_if_needed(
-                neoaccount.FRUIT_FLAG, "FRUIT", lambda: FRUIT.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
-            )
-
-            if neoaccount.TVW_EVENT_FLAG:
                 create_task_if_needed(
-                    True, "TVW_HOSPITAL", partial(TVW_EVENT.get_hosptial, context, page, [neoaccount.TVW_HP_PET_NAME_1, neoaccount.TVW_HP_PET_NAME_2]), 
-                    tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
+                    neoaccount.TRUDYS_FLAG, "TRUDYS", lambda: TRUDYS.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
                 )
                 create_task_if_needed(
-                    True, "TVW_VOID_LOCATION", lambda: TVW_EVENT.get_void_location(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
+                    neoaccount.JELLY_FLAG, "JELLY", lambda: JELLY.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
                 )
-            
+                create_task_if_needed(
+                    neoaccount.OMELETTE_FLAG, "OMELETTE", lambda: OMELETTE.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
+                )
+                create_task_if_needed(
+                    neoaccount.FISHING_FLAG, "FISHING", lambda: FISHING.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
+                )
+                create_task_if_needed(
+                    neoaccount.SPRINGS_FLAG, "SPRINGS", lambda: SPRINGS.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
+                )
+                create_task_if_needed(
+                    neoaccount.FRUIT_FLAG, "FRUIT", lambda: FRUIT.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
+                )
 
-            try:
-                for task in tasks:
-                    result = await task  # waiting for task all done.
-                    print(f"Task {task.get_name()} completed with result: {result}")
-                    # Update time_expiry
-                    if result:
-                        _time_expiry = TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME].get(task.get_name())
-                        if _time_expiry is None or time.time() > _time_expiry:
-                            _time_hours = 23
-                            if task.get_name() == "TRUDYS":
-                                _time_hours = 4
-                            elif task.get_name() == "JELLY":
+                if neoaccount.TVW_EVENT_FLAG:
+                    create_task_if_needed(
+                        True, "TVW_HOSPITAL", partial(TVW_EVENT.get_hosptial, context, page, [neoaccount.TVW_HP_PET_NAME_1, neoaccount.TVW_HP_PET_NAME_2]), 
+                        tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
+                    )
+                    create_task_if_needed(
+                        True, "TVW_VOID_LOCATION", lambda: TVW_EVENT.get_void_location(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
+                    )
+                
+
+                try:
+                    for task in tasks:
+                        result = await task  # waiting for task all done.
+                        print(f"Task {task.get_name()} completed with result: {result}")
+                        # Update time_expiry
+                        if result:
+                            _time_expiry = TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME].get(task.get_name())
+                            if _time_expiry is None or time.time() > _time_expiry:
                                 _time_hours = 23
-                            elif task.get_name() == "OMELETTE":
-                                _time_hours = 23
-                            elif task.get_name() == "FISHING":
-                                _time_hours = 12
-                            elif task.get_name() == "SPRINGS":
-                                _time_hours = 1
-                            elif task.get_name() == "FRUIT":
-                                _time_hours = 4
-                            elif task.get_name() == "TVW_HOSPITAL":
-                                _time_hours = 2
-                            elif task.get_name() == "TVW_VOID_LOCATION":
-                                _time_hours = 9
+                                if task.get_name() == "TRUDYS":
+                                    _time_hours = 4
+                                elif task.get_name() == "JELLY":
+                                    _time_hours = 23
+                                elif task.get_name() == "OMELETTE":
+                                    _time_hours = 23
+                                elif task.get_name() == "FISHING":
+                                    _time_hours = 12
+                                elif task.get_name() == "SPRINGS":
+                                    _time_hours = 1
+                                elif task.get_name() == "FRUIT":
+                                    _time_hours = 4
+                                elif task.get_name() == "TVW_HOSPITAL":
+                                    _time_hours = 2
+                                elif task.get_name() == "TVW_VOID_LOCATION":
+                                    _time_hours = 9
 
-                            TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][task.get_name()] = TS.get_timestamp(_time_hours)
+                                TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][task.get_name()] = TS.get_timestamp(_time_hours)
 
-                    all_result[task.get_name()] = result
-            except Exception as e:
-                print(f"task error {e}  Traceback: {traceback.format_exc()}")
+                        all_result[task.get_name()] = result
+                except Exception as e:
+                    print(f"task error {e}  Traceback: {traceback.format_exc()}")
+        except Exception as e:
+            print(f"task group error {e}  Traceback: {traceback.format_exc()}")
 
         if neoaccount.AUTO_SAVE_TO_SAFTY_BOX:
             result = await QS.run(context, page)

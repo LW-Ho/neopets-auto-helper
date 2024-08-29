@@ -135,6 +135,6 @@ async def get_void_location(context: BrowserContext, page: Page) -> bool:
 
         return True
     except Exception as e:
-        print("get_tvw_void_location complete")
+        print(f"get_tvw_void_location complete {e}")
 
     return False
