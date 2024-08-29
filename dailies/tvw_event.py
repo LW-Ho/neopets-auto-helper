@@ -1,3 +1,4 @@
+import json
 import re
 from playwright.async_api import Page, BrowserContext
 import urls.neopets_urls as NEOPETS_URLS
@@ -43,7 +44,7 @@ async def get_hosptial(context: BrowserContext, page: Page, pets_list: list) -> 
                 await _page.goto(NEOPETS_URLS.NEO_HOSPITAL_VOLUNTEER_HOME_PAGE)
 
         await random_sleep()
-        _page.close()
+        await _page.close()
         return True
     except Exception as e:
         print("get_tvw_hospital complete")
@@ -53,6 +54,7 @@ async def get_hosptial(context: BrowserContext, page: Page, pets_list: list) -> 
 async def get_void_location(context: BrowserContext, page: Page) -> bool:
     await random_sleep()
     void_essence_location_map_link = [
+        "https://www.neopets.com/desert/qasala.phtml",
         "https://www.neopets.com/winter/terrormountain.phtml",
         "https://www.neopets.com/medieval/index_farm.phtml",
         "https://www.neopets.com/altador/index.phtml",
@@ -111,9 +113,6 @@ async def get_void_location(context: BrowserContext, page: Page) -> bool:
                     "ck": ck_value,
                     "essence": essence_array
                 }
-
-                print(data)
-
                 for _essence in data["essence"]:
                     payload = {
                         "hash": str(_essence['hash']),
@@ -121,15 +120,18 @@ async def get_void_location(context: BrowserContext, page: Page) -> bool:
                         "day": str(_essence['day']),
                         "_ref_ck": str(data['ck'])
                     }
-                    print(payload)
                     rep = await web.post_form_data(
                         payload, NEOPETS_URLS.NEO_TVW_COLLECT_VOID, context, _page, _map
                     )
                     await random_sleep()
+                    
+                    rep_json = json.loads(rep)
+                    print(rep_json)
+                    if rep_json.get('showComplete'):
+                        await _page.close()
+                        return True
 
-                    print(rep)
-            else:
-                _page.close()
+            await _page.close()
 
         return True
     except Exception as e:
