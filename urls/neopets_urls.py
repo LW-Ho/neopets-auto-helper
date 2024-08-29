@@ -3,6 +3,7 @@ NEO_LOGIN = "https://www.neopets.com/login/"
 NEO_LOGIN_REQUEST = "https://www.neopets.com/login.phtml"
 NEO_LOGOUT_REQUEST = "https://www.neopets.com/logout.phtml"
 NEO_NEOPASS_LOGIN = "https://neopass.neopets.com/login"
+NEO_NEOPASS_LOGIN_REQUEST = "https://neopass.neopets.com/api/v1/login"
 
 # PETLIST
 NEO_PET_LIST_QR = "https://www.neopets.com/quickref.phtml"
