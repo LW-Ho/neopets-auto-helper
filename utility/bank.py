@@ -1,12 +1,11 @@
 from playwright.async_api import Page, BrowserContext
 from typing import Optional
 import urls.neopets_urls as NEOPETS_URLS
-from utility import random_sleep
+from utility import random_sleep, PlayWrightInstance
 
-class Bank():
+class Bank(PlayWrightInstance):
     def __init__(self, context: BrowserContext, page: Page, pin_code: Optional[str] = None) -> None:
-        self._context = context
-        self._page = page
+        super().__init__(context, page)
         self._pin_code = pin_code
     
     async def get_on_hand_npanchor(self) -> int:

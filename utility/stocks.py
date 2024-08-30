@@ -1,23 +1,20 @@
 from playwright.async_api import Page, BrowserContext
 import urls.neopets_urls as NEOPETS_URLS
-from utility import random_sleep
+from utility import random_sleep, PlayWrightInstance
 from typing import Tuple
 from utility import web, bank as Bank
 
 
-class Stock():
+class Stock(PlayWrightInstance):
     def __init__(self, context: BrowserContext, page: Page, pin_code: str = "") -> None:
-        self._context = context
-        self._page = page
+        super().__init__(context, page)
         self._pin_code = pin_code
-
 
     async def _get_cheapest_stock(self) -> Tuple[str, int]:
         ticker = ""
         min_price = 15
         lowest_price = 20
 
-        # content = await web.get(NEOPETS_URLS.STOCK_MARKET_LIST, self._context, self._page)
         await self._page.goto(NEOPETS_URLS.STOCK_MARKET_LIST)
         stock_params = await self._page.locator('td[align="center"][bgcolor="#eeeeff"]').all()
         for index in range(0, len(stock_params), 5):
