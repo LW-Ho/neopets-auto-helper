@@ -20,6 +20,13 @@ class NEOAccount:
     FISHING_FLAG: bool
     SPRINGS_FLAG: bool
     FRUIT_FLAG: bool
+    SHRINE_FLAG: bool
+    TOMBOLA_FLAG: bool
+    TDMBGPOP_FLAG: bool
+    PETLAB_FLAG: bool
+    PETLAB_NAME: str
+    PETPETLAB_FLAG: bool
+    PETPETLAB_NAME: str
     TVW_EVENT_FLAG: bool
     AUTO_SAVE_TO_SAFTY_BOX: bool
 
@@ -27,7 +34,7 @@ class NEOAccount:
 class NEOAccountsData:
     accounts: List[NEOAccount] 
 
-with open('test_accounts.json', 'r', encoding='utf-8') as file:
+with open('accounts.json', 'r', encoding='utf-8') as file:
     data = json.load(file)
 
 accounts = [NEOAccount(**account_data) for account_data in data.values()]

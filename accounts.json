@@ -16,6 +16,13 @@
         "FISHING_FLAG": true,
         "SPRINGS_FLAG": true,
         "FRUIT_FLAG": true,
+        "SHRINE_FLAG": true,
+        "TOMBOLA_FLAG": true,
+        "TDMBGPOP_FLAG": true,
+        "PETLAB_FLAG": false,
+        "PETLAB_NAME": "",
+        "PETPETLAB_FLAG": false,
+        "PETPETLAB_NAME": "",
         "TVW_EVENT_FLAG": true,
         "AUTO_SAVE_TO_SAFTY_BOX": true
     }

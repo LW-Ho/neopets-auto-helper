@@ -15,7 +15,10 @@ from dailies import jelly as JELLY, \
     springs as SPRINGS, \
     fruit as FRUIT, \
     tvw_event as TVW_EVENT, \
-    trudys as TRUDYS
+    trudys as TRUDYS, \
+    shrine as SHRINE, \
+    tombola as TOMBOLA, \
+    tdmbgpop as TDMBGPOP
 from utility import quick_stock as QS, random_sleep, timestamp as TS, stocks
 from utility.bank import Bank
 from app.env import NEOACCOUNT_DATA, NEOAccount
@@ -76,7 +79,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                         result = await bank.collect_interest()
                         all_result[key] = result
 
-                        TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(4)
+                        TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(8)
                 
                 if neoaccount.BUY_STOCK_FLAG:
                     key = "but_stocks"
@@ -84,11 +87,10 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                     if time_expiry is None or time.time() > time_expiry:
 
                         stock = stocks.Stock(context, page, neoaccount.PIN_CODE)
-                        await stock.buy_stock()
+                        result = await stock.buy_stock()
 
                         all_result[key] = result
-                        TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(6)
-
+                        TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(8)
 
                 create_task_if_needed(
                     neoaccount.TRUDYS_FLAG, "TRUDYS", lambda: TRUDYS.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
@@ -108,7 +110,16 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                 create_task_if_needed(
                     neoaccount.FRUIT_FLAG, "FRUIT", lambda: FRUIT.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
                 )
-
+                create_task_if_needed(
+                    neoaccount.SHRINE_FLAG, "SHRINE", lambda: SHRINE.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
+                )
+                create_task_if_needed(
+                    neoaccount.TOMBOLA_FLAG, "TOMBOLA", lambda: TOMBOLA.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
+                )
+                create_task_if_needed(
+                    neoaccount.TDMBGPOP_FLAG, "TDMBGPOP", lambda: TDMBGPOP.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
+                )
+                
                 if neoaccount.TVW_EVENT_FLAG:
                     create_task_if_needed(
                         True, "TVW_HOSPITAL", partial(TVW_EVENT.get_hosptial, context, page, [neoaccount.TVW_HP_PET_NAME_1, neoaccount.TVW_HP_PET_NAME_2]), 
@@ -156,9 +167,6 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
         if neoaccount.AUTO_SAVE_TO_SAFTY_BOX:
             result = await QS.run(context, page)
             all_result['safty box'] = result
-
-        if neopets:
-            await neopets.logout(context, page)
 
         await context.close()
         await browser.close()
