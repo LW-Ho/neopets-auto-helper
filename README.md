@@ -27,14 +27,17 @@ python main.py
 - Omelette
 - Springs
 - Trudys
+- Shrine
+- Tombola
+- Tdmbgpop
 - The Void Within Event
     - Hosiptal
     - Void Location
 - Buy Stoks
+- PetLab    # First, You need to collect map to open.
+- PetpetLab # First, You need to collect map to open.
 
 # Coming Features
-- Pet Lab
-- Petpet Lab
 - Shop Wizard
 - Training School
     - Cap'n Threelegs' Swashbuckling Academy

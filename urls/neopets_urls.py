@@ -79,3 +79,7 @@ NEO_TVW_COLLECT_VOID = "https://www.neopets.com/np-templates/ajax/plots/tvw/void
 # PetLab
 NEO_PET_LAB2 = "https://www.neopets.com/lab2.phtml"
 NEO_PET_LAB2_PROCESS = "https://www.neopets.com/process_lab2.phtml"
+
+# PetpetLab
+NEO_PETPET_LAB = "https://www.neopets.com/petpetlab.phtml"
+NEO_PETPET_LAB2_PROCESS = "https://www.neopets.com/process_petpetlab.phtml"
