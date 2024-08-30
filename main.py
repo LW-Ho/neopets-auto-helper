@@ -19,7 +19,7 @@ from dailies import jelly as JELLY, \
     shrine as SHRINE, \
     tombola as TOMBOLA, \
     tdmbgpop as TDMBGPOP
-from utility import quick_stock as QS, random_sleep, timestamp as TS, stocks
+from utility import quick_stock as QS, random_sleep, timestamp as TS, stocks, petlab
 from utility.bank import Bank
 from app.env import NEOACCOUNT_DATA, NEOAccount
 
@@ -91,6 +91,28 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
 
                         all_result[key] = result
                         TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(8)
+
+                if neoaccount.PETLAB_FLAG and neoaccount.PETLAB_NAME:
+                    key = "petlab2"
+                    time_expiry = TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME].get(key)
+                    if time_expiry is None or time.time() > time_expiry:
+
+                        petlabobj = petlab.PetLab(context, page, neoaccount.PETLAB_NAME)
+                        result = await petlabobj.run()
+
+                        all_result[key] = result
+                        TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(10)
+
+                if neoaccount.PETPETLAB_FLAG and neoaccount.PETPETLAB_NAME:
+                    key = "petpetlab"
+                    time_expiry = TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME].get(key)
+                    if time_expiry is None or time.time() > time_expiry:
+
+                        petpetlabobj = petlab.PetpetLab(context, page, neoaccount.PETPETLAB_NAME)
+                        result = await petpetlabobj.run()
+
+                        all_result[key] = result
+                        TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(10)
 
                 create_task_if_needed(
                     neoaccount.TRUDYS_FLAG, "TRUDYS", lambda: TRUDYS.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
