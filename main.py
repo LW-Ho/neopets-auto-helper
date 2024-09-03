@@ -144,7 +144,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                 
                 if neoaccount.TVW_EVENT_FLAG:
                     create_task_if_needed(
-                        True, "TVW_HOSPITAL", partial(TVW_EVENT.get_hosptial, context, page, [neoaccount.TVW_HP_PET_NAME_1, neoaccount.TVW_HP_PET_NAME_2]), 
+                        True, "TVW_HOSPITAL", partial(TVW_EVENT.get_hosptial, context, page), 
                         tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
                     )
                     create_task_if_needed(

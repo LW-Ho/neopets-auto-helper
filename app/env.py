@@ -10,8 +10,6 @@ class NEOAccount:
     PASSWORD: str
     NEOPASS_USERNAME: str
     ACTIVE_PET_NAME: str
-    TVW_HP_PET_NAME_1: str
-    TVW_HP_PET_NAME_2: str
     BANK_INTEREST_FLAG: bool
     BUY_STOCK_FLAG: bool
     TRUDYS_FLAG: bool
