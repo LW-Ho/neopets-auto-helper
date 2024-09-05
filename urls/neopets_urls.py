@@ -51,6 +51,7 @@ NEO_STOCK_BUY = "https://www.neopets.com/stockmarket.phtml?type=buy&ticker=" #Ne
 
 #Shop wizard
 NEO_SHOP_WIZARD = "https://www.neopets.com/market.phtml"
+NEO_SHOP_REFFER_HOME_PAGE = "https://www.neopets.com"
 
 # Mystery Island Training School
 NEO_MYSTERY_ISLAND_TRAINING_SCHOOL_START = "https://www.neopets.com/island/process_training.phtml"
@@ -69,9 +70,10 @@ NEO_SECRET_NINJA_TRAINING_SCHOOL_PAY_STONE = "https://www.neopets.com/island/pro
 
 # The Void Within Volunt Time
 NEO_HOSPITAL_VOLUNTEER_HOME_PAGE = "https://www.neopets.com/hospital/volunteer.phtml"
-NEO_HOSPITAL_VOLUNTEER_COMPLETE = "https://www.neopets.com/np-templates/ajax/plots/hospital/volunteer-finish.php" # POST _ref_ck: xxxxx / id: 8263402
-NEO_HOSPITAL_VOLUNTEER_GET_PETS = "https://www.neopets.com/np-templates/ajax/plots/hospital/get-pets.php" # fight_id: 3
-NEO_HOSPITAL_VOLUNTEER_JOIN = "https://www.neopets.com/np-templates/ajax/plots/hospital/volunteer-join.php" # fight_id: 3 / pet_name: xxxxxx 
+NEO_HOSPITAL_VOLUNTEER_COMPLETE = "https://www.neopets.com/np-templates/ajax/plots/hospital/volunteer-finish.php"
+NEO_HOSPITAL_VOLUNTEER_GET_PETS = "https://www.neopets.com/np-templates/ajax/plots/hospital/get-pets.php"
+NEO_HOSPITAL_VOLUNTEER_JOIN = "https://www.neopets.com/np-templates/ajax/plots/hospital/volunteer-join.php"
+NEO_TVW_COLLECT_VOID_GET_REWARD = "https://www.neopets.com/np-templates/ajax/plots/tvw/void-collection/get_reward.php"
 
 # The Void Within Collect void
 NEO_TVW_COLLECT_VOID = "https://www.neopets.com/np-templates/ajax/plots/tvw/void-collection/collect_void.php"

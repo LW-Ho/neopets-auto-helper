@@ -31,7 +31,8 @@ async def get(url: str, context: BrowserContext, page: Page, referer: Optional[s
         headers['Referer'] = referer
 
     response: APIResponse = await page.request.get(
-        url=url
+        url=url,
+        headers=headers
     )
 
     r = await response.text()

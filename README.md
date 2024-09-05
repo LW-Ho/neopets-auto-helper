@@ -33,12 +33,12 @@ python main.py
 - The Void Within Event
     - Hosiptal
     - Void Location
-- Buy Stoks
+- Buy Stocks
 - PetLab    # First, You need to collect map to open.
 - PetpetLab # First, You need to collect map to open.
+- Shop Wizard
 
 # Coming Features
-- Shop Wizard
 - Training School
     - Cap'n Threelegs' Swashbuckling Academy
     - Mystery Island Training School
