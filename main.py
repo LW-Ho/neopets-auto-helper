@@ -128,7 +128,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                 )
 
                 create_task_if_needed(
-                    neoaccount.TRAINING_SWASHBUCKLING_ACADEMY["PET_NAME"], "MysteryIsland", 
+                    neoaccount.TRAINING_MYSTERY_ISLAND["PET_NAME"], "MysteryIsland", 
                     lambda: MysteryIsland(context,
                                                 page,
                                                 neoaccount.TRAINING_MYSTERY_ISLAND["PET_NAME"],
@@ -139,7 +139,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                 )
 
                 create_task_if_needed(
-                    neoaccount.TRAINING_SWASHBUCKLING_ACADEMY["PET_NAME"], "SecretNinja", 
+                    neoaccount.TRAINING_SECRET_NINJA["PET_NAME"], "SecretNinja", 
                     lambda: SecretNinja(context,
                                                 page,
                                                 neoaccount.TRAINING_SECRET_NINJA["PET_NAME"],
