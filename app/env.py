@@ -26,6 +26,9 @@ class NEOAccount:
     PETPETLAB_FLAG: bool
     PETPETLAB_NAME: str
     TVW_EVENT_FLAG: bool
+    TRAINING_SWASHBUCKLING_ACADEMY: dict
+    TRAINING_MYSTERY_ISLAND: dict
+    TRAINING_SECRET_NINJA: dict
     AUTO_SAVE_TO_SAFTY_BOX: bool
 
 @dataclass

@@ -10,6 +10,7 @@ class Shop(PlayWrightInstance):
         self.url = ""
         self.owner = ""
         self.items: ShopItem = Optional[ShopItem|None]
+        self._item_detail = {}
 
     async def scrape_shop_items(self) -> "ShopItem":
         self.url = self._page.url
@@ -32,15 +33,16 @@ class Shop(PlayWrightInstance):
         img_src_match = re.search(r'<img src="([^"]+)"', td_html)
         item_name_match = re.search(r'<b>([^<]+)</b>', td_html)
         stock_match = re.search(r'(\d+) in stock', td_html)
-        price_match = re.search(r'Cost : (\d+) NP', td_html)
+        price_match = re.search(r'Cost : ([\d,]+) NP', td_html)
+        price_match = price_match.group(1).replace(",", "")
 
         # 生成字典
-        item_details = {
+        self._item_detail = {
             "image_url": img_src_match.group(1) if img_src_match else None,
             "item_name": item_name_match.group(1) if item_name_match else None,
             "obj_id": obj_id,
             "stock": int(stock_match.group(1)) if stock_match else None,
-            "price": int(price_match.group(1)) if price_match else None,
+            "price": int(price_match) if price_match else None,
             "owner": owner,
             "buy_link": href
         }
@@ -48,18 +50,18 @@ class Shop(PlayWrightInstance):
         self.owner = owner
 
         shop_items = ShopItem(
-            item_details["item_name"], 
-            item_details['price'], 
-            item_details['stock'],
-            item_details['obj_id'],
-            item_details["buy_link"]
+            self._item_detail["item_name"], 
+            self._item_detail['price'], 
+            self._item_detail['stock'],
+            self._item_detail['obj_id'],
+            self._item_detail["buy_link"]
             )
 
         self.items = shop_items
 
     def print_items(self):
         if self.items:
-            print(f"name: {self.items.name}, quantity: {self.items.quantity}, price: {self.items.price}")
+            print(f"{self._item_detail}")
         else:
             print(f"name: not found")
 

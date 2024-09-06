@@ -53,6 +53,13 @@ NEO_STOCK_BUY = "https://www.neopets.com/stockmarket.phtml?type=buy&ticker=" #Ne
 NEO_SHOP_WIZARD = "https://www.neopets.com/market.phtml"
 NEO_SHOP_REFFER_HOME_PAGE = "https://www.neopets.com"
 
+# Cap'n Threelegs' Swashbuckling Academy
+NEO_SWASHBUCKLING_ACADEMY_START = "https://www.neopets.com/pirates/process_academy.phtml"
+NEO_SWASHBUCKLING_ACADEMY_END   = "https://www.neopets.com/pirates/process_academy.phtml"
+NEO_SWASHBUCKLING_ACADEMY_STATUS = "https://www.neopets.com/pirates/academy.phtml?type=status"
+NEO_SWASHBUCKLING_ACADEMY_COURSES = "https://www.neopets.com/pirates/academy.phtml?type=courses"
+NEO_SWASHBUCKLING_ACADEMY_PAY = "https://www.neopets.com/pirates/process_academy.phtml"
+
 # Mystery Island Training School
 NEO_MYSTERY_ISLAND_TRAINING_SCHOOL_START = "https://www.neopets.com/island/process_training.phtml"
 NEO_MYSTERY_ISLAND_TRAINING_SCHOOL_END   = "https://www.neopets.com/island/process_training.phtml"

@@ -1,8 +1,25 @@
 import traceback
+from typing import Optional, Union
 from playwright.async_api import Page, BrowserContext, Locator
 import urls.neopets_urls as NEOPETS_URLS
 from utility import random_sleep, PlayWrightInstance, web
 from utility.shop import Shop
+
+class SearchResult:
+    def __init__(self, owner: str, stock: int, price: int, shop_link: str):
+        self.owner = owner
+        self.stock = stock
+        self.price = price
+        self.shop_link = shop_link
+        self.obj_id = int(self.shop_link[self.shop_link.find("&buy_obj_info_id=") + len("&buy_obj_info_id=") : self.shop_link.find("&buy_cost_neopoints=")])
+        self.shop: Shop = None
+
+    async def add_shop_details(self, context: BrowserContext, page: Page):
+        self.shop = Shop(context, page)
+        await self.shop.scrape_shop_items()
+
+    def __str__(self):
+        return self.owner + " " + str(self.stock) + " " + str(self.price)
 
 class ShopWizard(PlayWrightInstance):
     def __init__(self, context: BrowserContext, page: Page) -> None:
@@ -55,14 +72,14 @@ class ShopWizard(PlayWrightInstance):
             price = []
 
             for i in range(min_length):
-                price.append(prices_F6[i].replace(' NP', ''))
-                price.append(prices_FF[i].replace(' NP', ''))
+                price.append(prices_F6[i].replace(' NP', '').replace(",", ""))
+                price.append(prices_FF[i].replace(' NP', '').replace(",", ""))
 
             if len(prices_F6) > len(prices_FF):
-                price.extend([item.replace(' NP', '') for item in prices_F6[min_length:]])
+                price.extend([item.replace(' NP', '').replace(",", "") for item in prices_F6[min_length:]])
 
             if len(prices_FF) > len(prices_F6):
-                price.extend([item.replace(' NP', '') for item in prices_FF[min_length:]])
+                price.extend([item.replace(' NP', '').replace(",", "") for item in prices_FF[min_length:]])
 
             min_length = min(len(quantities_F6), len(quantities_FF))
             quantities = []
@@ -79,14 +96,17 @@ class ShopWizard(PlayWrightInstance):
 
             if shop_owners:
                 for index in range(len(shop_owners)):
-                    search_results.append(
-                        SearchResult(
-                            shop_owners[index],
-                            int(quantities[index]),
-                            int(price[index]),
-                            shop_links[index]
+                    if index == 2:
+                        break
+                    if shop_links[index]:
+                        search_results.append(
+                            SearchResult(
+                                shop_owners[index],
+                                int(quantities[index]),
+                                int(price[index]),
+                                shop_links[index]
+                            )
                         )
-                    )
         
         except Exception as e:
             print(f"{__name__} error: {e}, {traceback.format_exc()}")
@@ -94,7 +114,7 @@ class ShopWizard(PlayWrightInstance):
         return search_results
     
     async def __open_shop(self, Item_Search: "ItemSearch"):
-        if Item_Search.cheapest_result() is not None:
+        if Item_Search.cheapest_result():
 
             await self._page.goto(NEOPETS_URLS.NEO_SHOP_REFFER_HOME_PAGE + Item_Search.cheapest_result().shop_link, timeout=120000)
             await random_sleep()
@@ -102,20 +122,27 @@ class ShopWizard(PlayWrightInstance):
             content = await self._page.content()
             while "Sorry - The owner of this shop has been frozen!" in content:
                 Item_Search.remove_shop()
+
+                if Item_Search.cheapest_result() is None:
+                    return 
+                
                 await self._page.goto(NEOPETS_URLS.NEO_SHOP_REFFER_HOME_PAGE + Item_Search.cheapest_result().shop_link, timeout=120000)
                 await random_sleep()
+                content = await self._page.content()
 
             await Item_Search.cheapest_result().add_shop_details(self._context, self._page)
 
-    async def __send_purchase_request(self, Item_Search: "ItemSearch"):
+    async def __send_purchase_request(self, Item_Search: "ItemSearch") -> dict:
         referer = Item_Search.cheapest_result().shop.url
         buy_link = NEOPETS_URLS.NEO_HOMEPAGE + Item_Search.cheapest_result().shop.items.buy_link
         response = await web.get(buy_link, self._context, self._page, referer=referer)
-
+        prices_paid = Item_Search.cheapest_result().shop._item_detail
         Item_Search.decrease_shop_quantity()
 
-    async def buy(self, item: str, quantity = 1, max_searches = 10, max_price=99999) -> list:
-        prices_paid = []
+        return prices_paid
+
+    async def buy(self, item: str, quantity = 1, max_searches = 10, max_price=99999) -> dict:
+        prices_paid = {}
 
         self._page = await self._context.new_page()
 
@@ -125,12 +152,9 @@ class ShopWizard(PlayWrightInstance):
             for i in range(quantity):
                 try:
                     await self.__open_shop(Item_Search)
-                    price = Item_Search.cheapest_result().shop.items.price
-                    await self.__send_purchase_request(Item_Search)
-                    prices_paid.append(price)
+                    prices_paid = await self.__send_purchase_request(Item_Search)
                 except Exception as e:
-                    print(f"{__name__} error {e} {traceback.format_exc()}")
-                    prices_paid.append(0)
+                    print(f"{__name__} error {e} shop.buy {traceback.format_exc()}")
 
         return prices_paid
     
@@ -175,7 +199,7 @@ class ItemSearch:
         else:
             return -1
 
-    def cheapest_result(self) -> "SearchResult":
+    def cheapest_result(self) -> SearchResult | None:
         try:
             if len(self.search_results) != 0:
                 return self.search_results[0]
@@ -183,7 +207,7 @@ class ItemSearch:
         except Exception as e:
             print(f"{__name__} error : {e}")
 
-        return SearchResult("", 0, 0, "")
+        return None
 
     def remove_shop(self, index = 0):
         if len(self.search_results) > 0:
@@ -225,21 +249,3 @@ class ItemSearch:
             s = s + "\n" + str(shop)
 
         return s
-    
-class SearchResult:
-    def __init__(self, owner: str, stock: int, price: int, shop_link: str):
-        self.owner = owner
-        self.stock = stock
-        self.price = price
-        self.shop_link = shop_link
-        self.obj_id = int(self.shop_link[self.shop_link.find("&buy_obj_info_id=") + len("&buy_obj_info_id=") : self.shop_link.find("&buy_cost_neopoints=")])
-        self.shop: Shop = None
-
-    async def add_shop_details(self, context: BrowserContext, page: Page):
-        self.shop = Shop(context, page)
-        await self.shop.scrape_shop_items()
-
-    def __str__(self):
-        return self.owner + " " + str(self.stock) + " " + str(self.price)
-
-
