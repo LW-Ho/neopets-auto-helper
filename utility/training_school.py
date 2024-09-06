@@ -95,7 +95,7 @@ class SecretNinja(TrainingSchool):
     async def buy(self) -> bool:
         try:
             await self._page.goto(NEOPETS_URLS.NEO_SECRET_NINJA_TRAINING_SCHOOL_STATUS, timeout=120000)
-            self._active_pet = await self.collect()
+            await self.collect()
 
             shopWizard = shop_wizard.ShopWizard(self._context, self._page)
             for item in self._active_pet["pay_items"]:
@@ -130,7 +130,6 @@ class SecretNinja(TrainingSchool):
             rows = await self._page.query_selector_all('table[width="500"] tr')
 
             current_pet = None
-            active_pet = {}
             for row in rows:
                 # Get pet information
                 pet_info_element = await row.query_selector('td[colspan="2"]')
@@ -188,15 +187,13 @@ class SecretNinja(TrainingSchool):
                             current_pet["pay_items"].append(index.replace("\t", ""))
                             
                 if current_pet["name"] == self._pet_name:
-                    active_pet = current_pet
+                    self._active_pet = current_pet
 
                 self._pets.append(current_pet)
                            
         except Exception as e:
             print(f"{__name__} error {e} Traceback: {traceback.format_exc()}")
-        
-        return active_pet
-    
+
     async def start(self) -> Union[bool, dict, list]:
         try:
             await self.complete()
@@ -271,7 +268,7 @@ class MysteryIsland(TrainingSchool):
     async def buy(self) -> bool:
         try:
             await self._page.goto(NEOPETS_URLS.NEO_MYSTERY_ISLAND_TRAINING_SCHOOL_STATUS, timeout=120000)
-            self._active_pet = await self.collect()
+            await self.collect()
 
             shopWizard = shop_wizard.ShopWizard(self._context, self._page)
             for item in self._active_pet["pay_items"]:
@@ -306,7 +303,6 @@ class MysteryIsland(TrainingSchool):
             rows = await self._page.query_selector_all('table[width="500"] tr')
 
             current_pet = None
-            active_pet = {}
             for row in rows:
                 # Get pet information
                 pet_info_element = await row.query_selector('td[colspan="2"]')
@@ -364,14 +360,12 @@ class MysteryIsland(TrainingSchool):
                             current_pet["pay_items"].append(index.replace("\t", ""))
                             
                 if current_pet["name"] == self._pet_name:
-                    active_pet = current_pet
+                    self._active_pet = current_pet
 
                 self._pets.append(current_pet)
                            
         except Exception as e:
             print(f"{__name__} error {e} Traceback: {traceback.format_exc()}")
-        
-        return active_pet
     
     async def start(self) -> Union[bool, dict, list]:
         try:
@@ -447,7 +441,7 @@ class SwashbucklingAcademy(TrainingSchool):
     async def buy(self) -> bool:
         try:
             await self._page.goto(NEOPETS_URLS.NEO_SWASHBUCKLING_ACADEMY_STATUS, timeout=120000)
-            self._active_pet = await self.collect()
+            await self.collect()
 
             shopWizard = shop_wizard.ShopWizard(self._context, self._page)
             for item in self._active_pet["pay_items"]:
@@ -479,7 +473,7 @@ class SwashbucklingAcademy(TrainingSchool):
             
         return False
 
-    async def collect(self) -> list[str]:
+    async def collect(self) -> None:
         try:
             await self._page.goto(NEOPETS_URLS.NEO_SWASHBUCKLING_ACADEMY_STATUS, timeout=120000)
             await random_sleep()
@@ -487,7 +481,6 @@ class SwashbucklingAcademy(TrainingSchool):
             rows = await self._page.query_selector_all('table[width="500"] tr')
 
             current_pet = None
-            active_pet = {}
             for row in rows:
                 # Get pet information
                 pet_info_element = await row.query_selector('td[colspan="2"]')
@@ -547,14 +540,12 @@ class SwashbucklingAcademy(TrainingSchool):
                             current_pet["pay_items"].append(index.replace("\t", ""))
                             
                 if current_pet["name"] == self._pet_name:
-                    active_pet = current_pet
+                    self._active_pet = current_pet
 
                 self._pets.append(current_pet)
                            
         except Exception as e:
             print(f"{__name__} error {e} Traceback: {traceback.format_exc()}")
-        
-        return active_pet
     
     async def start(self) -> Union[bool, dict, list]:
         try:

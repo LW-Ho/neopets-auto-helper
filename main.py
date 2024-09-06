@@ -21,6 +21,7 @@ from dailies import jelly as JELLY, \
     tdmbgpop as TDMBGPOP
 from utility import quick_stock as QS, random_sleep, timestamp as TS, stocks, petlab
 from utility.bank import Bank
+from utility.training_school import SwashbucklingAcademy, MysteryIsland, SecretNinja
 from app.env import NEOACCOUNT_DATA, NEOAccount
 
 TIME_EXPIRY: dict = {}
@@ -67,6 +68,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
         try:
             async with asyncio.TaskGroup() as tg:
                 tasks = []
+                training_tasks = []
 
                 if neoaccount.BANK_INTEREST_FLAG:
                     key = "bank_collect_interest"
@@ -113,6 +115,39 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
 
                         all_result[key] = result
                         TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(10)
+
+                create_task_if_needed(
+                    neoaccount.TRAINING_SWASHBUCKLING_ACADEMY["PET_NAME"], "SwashbucklingAcademy", 
+                    lambda: SwashbucklingAcademy(context,
+                                                page,
+                                                neoaccount.TRAINING_SWASHBUCKLING_ACADEMY["PET_NAME"],
+                                                neoaccount.TRAINING_SWASHBUCKLING_ACADEMY["PET_COURSE_NAME"],
+                                                neoaccount.TRAINING_SWASHBUCKLING_ACADEMY["TARGET_VALUE"]
+                                                ).start(),
+                                                tg, training_tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
+                )
+
+                create_task_if_needed(
+                    neoaccount.TRAINING_SWASHBUCKLING_ACADEMY["PET_NAME"], "MysteryIsland", 
+                    lambda: MysteryIsland(context,
+                                                page,
+                                                neoaccount.TRAINING_MYSTERY_ISLAND["PET_NAME"],
+                                                neoaccount.TRAINING_MYSTERY_ISLAND["PET_COURSE_NAME"],
+                                                neoaccount.TRAINING_MYSTERY_ISLAND["TARGET_VALUE"]
+                                                ).start(),
+                                                tg, training_tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
+                )
+
+                create_task_if_needed(
+                    neoaccount.TRAINING_SWASHBUCKLING_ACADEMY["PET_NAME"], "SecretNinja", 
+                    lambda: SecretNinja(context,
+                                                page,
+                                                neoaccount.TRAINING_SECRET_NINJA["PET_NAME"],
+                                                neoaccount.TRAINING_SECRET_NINJA["PET_COURSE_NAME"],
+                                                neoaccount.TRAINING_SECRET_NINJA["TARGET_VALUE"]
+                                                ).start(),
+                                                tg, training_tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
+                )
 
                 create_task_if_needed(
                     neoaccount.TRUDYS_FLAG, "TRUDYS", lambda: TRUDYS.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
@@ -183,6 +218,23 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                         all_result[task.get_name()] = result
                 except Exception as e:
                     print(f"task error {e}  Traceback: {traceback.format_exc()}")
+
+                try:
+                    for task in training_tasks:
+                        result, pet, buy = await task  # waiting for task all done.
+                        print(f"Training task {task.get_name()} completed with result: {result} , {pet}, {buy}")
+                        # Update time_expiry
+                        if result:
+                            _time_expiry = TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME].get(task.get_name())
+                            if _time_expiry is None or time.time() > _time_expiry:
+                                _time_hours = 1
+                                TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][task.get_name()] = TS.get_timestamp(_time_hours)
+
+                        all_result[task.get_name()] = result
+                except Exception as e:
+                    print(f"Training task error {e}  Traceback: {traceback.format_exc()}")
+                
+
         except Exception as e:
             print(f"task group error {e}  Traceback: {traceback.format_exc()}")
 
