@@ -37,11 +37,12 @@ python main.py
 - PetLab    # First, You need to collect map to open.
 - PetpetLab # First, You need to collect map to open.
 - Shop Wizard
-
-# Coming Features
-- Training School
+- Training School (Strength, Defence, Agility, Endurance and Level)
     - Cap'n Threelegs' Swashbuckling Academy
     - Mystery Island Training School
-    - Secret Ninja Training School
+    - Secret Ninja Training School # Level 250 up
+  
+# Coming Features
 - Battledome
 - Daily Quests
+- Sell Stock
