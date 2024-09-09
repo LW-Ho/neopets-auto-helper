@@ -208,7 +208,7 @@ class SecretNinja(TrainingSchool):
                         result = pet["attributes"][self._course_name] < self._level_limit
 
                     if result == False:
-                        return False, {"pet_name": False}, []
+                        return False, {"pet_name": False, "message": "level limit"}, []
                     
                     break
 

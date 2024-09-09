@@ -22,6 +22,21 @@
         "PETPETLAB_FLAG": false,
         "PETPETLAB_NAME": "",
         "TVW_EVENT_FLAG": true,
+        "TRAINING_SWASHBUCKLING_ACADEMY": {
+            "PET_NAME": "",
+            "PET_COURSE_NAME": "",
+            "TARGET_VALUE": 20
+        },
+        "TRAINING_MYSTERY_ISLAND": {
+            "PET_NAME": "",
+            "PET_COURSE_NAME": "",
+            "TARGET_VALUE": 100
+        },
+        "TRAINING_SECRET_NINJA": {
+            "PET_NAME": "",
+            "PET_COURSE_NAME": "",
+            "TARGET_VALUE": 299
+        },
         "AUTO_SAVE_TO_SAFTY_BOX": true
     }
 }
