@@ -200,16 +200,12 @@ class SecretNinja(TrainingSchool):
             await self.collect()
 
             for pet in self._pets:
-                result = True
                 if pet["name"] == self._pet_name:
-                    if self._course_name == "Endurance":
-                        result = pet["attributes"][self._course_name] < self._level_limit*2
-                    else:
-                        result = pet["attributes"][self._course_name] < self._level_limit
+                    attr_value = pet["attributes"].get(self._course_name, 0)
+                    level_limit = self._level_limit * 2 if self._course_name == "Endurance" else self._level_limit
 
-                    if result == False:
+                    if attr_value < level_limit and attr_value < self.target_value * 2 if self._course_name == "Endurance" else level_limit:
                         return False, {"pet_name": False, "message": "level limit"}, []
-                    
                     break
 
             await self.study()
