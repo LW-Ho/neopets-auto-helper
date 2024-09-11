@@ -33,7 +33,7 @@ python main.py
 - The Void Within Event
     - Hosiptal
     - Void Location
-- Buy Stocks
+- Buy Stocks / Sell Stocks (60 NP)
 - PetLab    # First, You need to collect map to open.
 - PetpetLab # First, You need to collect map to open.
 - Shop Wizard
@@ -45,4 +45,3 @@ python main.py
 # Coming Features
 - Battledome
 - Daily Quests
-- Sell Stock

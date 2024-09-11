@@ -94,6 +94,17 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                         all_result[key] = result
                         TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(8)
 
+                if neoaccount.SELL_STOCK_FLAG:
+                    key = "sell_stocks"
+                    time_expiry = TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME].get(key)
+                    if time_expiry is None or time.time() > time_expiry:
+
+                        stock = stocks.Stock(context, page, neoaccount.PIN_CODE)
+                        flag, result = await stock.sell_stock()
+
+                        all_result[key] = [flag, result]
+                        TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(8)
+
                 if neoaccount.PETLAB_FLAG and neoaccount.PETLAB_NAME:
                     key = "petlab2"
                     time_expiry = TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME].get(key)
@@ -190,7 +201,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                 try:
                     for task in tasks:
                         result = await task  # waiting for task all done.
-                        print(f"Task {task.get_name()} completed with result: {result}")
+                        print(f"{neoaccount.USERNAME}, Task {task.get_name()} completed with result: {result}")
                         # Update time_expiry
                         if result:
                             _time_expiry = TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME].get(task.get_name())
@@ -222,7 +233,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                 try:
                     for task in training_tasks:
                         result, pet, buy = await task  # waiting for task all done.
-                        print(f"Training task {task.get_name()} completed with result: {result} , {pet}, {buy}")
+                        print(f"{neoaccount.USERNAME}, Training task {task.get_name()} completed with result: {result} , {pet}, {buy}")
                         # Update time_expiry
                         if result:
                             _time_expiry = TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME].get(task.get_name())

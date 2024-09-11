@@ -12,6 +12,7 @@ class NEOAccount:
     ACTIVE_PET_NAME: str
     BANK_INTEREST_FLAG: bool
     BUY_STOCK_FLAG: bool
+    SELL_STOCK_FLAG: bool
     TRUDYS_FLAG: bool
     JELLY_FLAG: bool
     OMELETTE_FLAG: bool

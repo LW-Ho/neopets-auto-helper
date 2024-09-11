@@ -48,6 +48,7 @@ NEO_SHRINE = "https://www.neopets.com/desert/shrine.phtml"
 NEO_STOCKLIST = "https://www.neopets.com/stockmarket.phtml"
 NEO_STOCK_BUY_PROCESS = "https://www.neopets.com/process_stockmarket.phtml"
 NEO_STOCK_BUY = "https://www.neopets.com/stockmarket.phtml?type=buy&ticker=" #Need to append desired ticker
+NEO_STOCK_PORTFOILO = "https://www.neopets.com/stockmarket.phtml?type=portfolio"
 
 #Shop wizard
 NEO_SHOP_WIZARD = "https://www.neopets.com/market.phtml"

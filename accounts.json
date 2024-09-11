@@ -8,6 +8,7 @@
         "ACTIVE_PET_NAME": "",
         "BANK_INTEREST_FLAG": true,
         "BUY_STOCK_FLAG": false,
+        "SELL_STOCK_FLAG": false,
         "TRUDYS_FLAG": true,
         "JELLY_FLAG": true,
         "OMELETTE_FLAG": true,
