@@ -106,6 +106,9 @@ class Stock(PlayWrightInstance):
 
                 except:
                     pass
+
+            if not sell_list:
+                return True, {}
    
             payload = {"_ref_ck": ref_value, "type": "sell"}
 
