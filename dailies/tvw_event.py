@@ -4,29 +4,32 @@ from playwright.async_api import Page, BrowserContext
 import urls.neopets_urls as NEOPETS_URLS
 from utility import random_sleep, web
 
-async def _click_button_if_exists(page: Page, role: str, name: str):
-    # button = page.get_by_role(role, name=name).first
-    # if await button.count() > 0:
-    #     await button.click()
-    #     print(f"Clicked the button: {name}")
-    # else:
-    #     raise Exception(f"Button not found: {name}")
-
+async def _click_complete_button_if_exists(page: Page, role: str, name: str) -> str | None:
     button = page.get_by_role(role, name=name).first
 
     if await button.count() > 0:
         button_id = await button.get_attribute("data-id") 
-        # await button.click()
-        print(f"Clicked the button: {name}")
+        print(f"Clicked the button: {name}, data-id: {button_id}")
         return button_id
     else:
-        raise Exception(f"Button not found: {name}")
+        return None
     
+async def _click_join_button_if_exists(page: Page, role: str, name: str) -> str | None:
+    button = page.get_by_role(role, name=name).first
 
-async def get_hosptial(context: BrowserContext, page: Page) -> bool:
+    if await button.count() > 0:
+        button_id = await button.get_attribute("id") 
+        button_id = button_id.replace("VolunteerButton", "")
+        print(f"Clicked the button: {name}, id: {button_id}")
+        return button_id
+    else:
+        return None
+
+async def get_hosptial(context: BrowserContext, page: Page, active_pet_name: str = "") -> bool:
     await random_sleep()
     try:
         _page = await context.new_page()
+        count = 0
 
         while True:
             await _page.goto(NEOPETS_URLS.NEO_HOSPITAL_VOLUNTEER_HOME_PAGE, timeout=120000)
@@ -35,7 +38,61 @@ async def get_hosptial(context: BrowserContext, page: Page) -> bool:
             ck_match = re.search(r"function getCK\(\) \{\s*return '([^']+)';\s*\}", content)
             ck_value = ck_match.group(1) if ck_match else None
 
-            button_id = await _click_button_if_exists(_page, "button", "Complete")
+            fight_id = await _click_join_button_if_exists(_page, "button", "Join Shift")
+            if fight_id:
+                payload = {
+                    "_ref_ck": ck_value,
+                    "fight_id": fight_id
+                }
+                rep = await web.post_form_data(
+                    payload, NEOPETS_URLS.NEO_HOSPITAL_VOLUNTEER_GET_PETS, context, _page, NEOPETS_URLS.NEO_HOSPITAL_VOLUNTEER_HOME_PAGE
+                )
+
+                rep_json: dict = json.loads(rep)
+                pet_name = ""
+                if rep_json.get("success"):
+                    
+                    for pet in rep_json["pets"]:
+                        if pet.get("disabled"):
+                            continue
+                        if pet["name"] == active_pet_name:
+                            continue
+                        pet_name = pet["name"]
+                        break
+
+                if pet_name:
+                    payload = {
+                        "_ref_ck": ck_value,
+                        "fight_id": fight_id,
+                        "pet_name": pet_name
+                    }
+                    rep = await web.post_form_data(
+                        payload, NEOPETS_URLS.NEO_HOSPITAL_VOLUNTEER_JOIN, context, _page, NEOPETS_URLS.NEO_HOSPITAL_VOLUNTEER_HOME_PAGE
+                    )
+
+                    print(rep)
+                count += 1
+            else:
+                break
+
+            if count >= 10:
+                # NEO_TVW_COLLECT_PRIZE_STORY
+                # _ref_ck: 
+                # mode: comicPrize
+                # plot: tvw
+                # ch: 5
+                # pg: 2
+                # read: 3
+                break
+
+        while True:
+            await _page.goto(NEOPETS_URLS.NEO_HOSPITAL_VOLUNTEER_HOME_PAGE, timeout=120000)
+            await random_sleep()
+            content = await _page.content()
+            ck_match = re.search(r"function getCK\(\) \{\s*return '([^']+)';\s*\}", content)
+            ck_value = ck_match.group(1) if ck_match else None
+
+            button_id = await _click_complete_button_if_exists(_page, "button", "Complete")
             payload = {
                 "_ref_ck": ck_value,
                 "id": button_id
@@ -77,6 +134,8 @@ async def get_hosptial(context: BrowserContext, page: Page) -> bool:
                     )
 
                     print(rep)
+            else:
+                break
 
     except Exception as e:
         print(f"get_tvw_hospital complete {e}")
@@ -126,7 +185,8 @@ async def get_void_location(context: BrowserContext, page: Page) -> bool:
         "https://www.neopets.com/space/index.phtml",
         "https://www.neopets.com/winter/index.phtml",
         "https://www.neopets.com/halloween/neovia.phtml",
-        "https://www.neopets.com/moon/index.phtml"
+        "https://www.neopets.com/moon/index.phtml",
+        "https://www.neopets.com/prehistoric/plateau.phtml"
     ]
 
     try:

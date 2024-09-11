@@ -85,6 +85,9 @@ NEO_TVW_COLLECT_VOID_GET_REWARD = "https://www.neopets.com/np-templates/ajax/plo
 
 # The Void Within Collect void
 NEO_TVW_COLLECT_VOID = "https://www.neopets.com/np-templates/ajax/plots/tvw/void-collection/collect_void.php"
+NEO_TVW_COLLECT_PRIZE_STORY = "https://www.neopets.com/np-templates/ajax/plots/plothub.php"
+NEO_TVW_GET_REWARD = "https://www.neopets.com/np-templates/ajax/plots/tvw/void-collection/get_reward.php" # ref
+NEO_TVW_STORY_PAGE = "https://www.neopets.com/tvw/story" 
 
 # PetLab
 NEO_PET_LAB2 = "https://www.neopets.com/lab2.phtml"
