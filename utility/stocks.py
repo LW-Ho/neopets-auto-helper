@@ -99,12 +99,9 @@ class Stock(PlayWrightInstance):
                     if int(index['Current']):
                         _current = int(index['Current'])
                         if _current > 1000:
-                            print(f"{_current/1000}: {index['sell']}")
                             _current = _current/1000
-                        else:
-                            print(f"{_current}: {index['sell']}")
 
-                        if _current >= 20:
+                        if _current >= self._sell_target_value:
                             sell_list.append({"Shares": int(index['Shares']), "Sell": index['sell']})
 
                 except:
