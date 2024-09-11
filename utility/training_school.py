@@ -196,16 +196,18 @@ class SecretNinja(TrainingSchool):
 
     async def start(self) -> Union[bool, dict, list]:
         try:
+            if self.target_value >= self._level_limit:
+                return False, {"pet_name": False, "message": "level limit"}, []
             await self.complete()
             await self.collect()
 
             for pet in self._pets:
                 if pet["name"] == self._pet_name:
                     attr_value = pet["attributes"].get(self._course_name, 0)
-                    level_limit = self._level_limit * 2 if self._course_name == "Endurance" else self._level_limit
+                    target_value = self.target_value * 2 if self._course_name == "Endurance" else self.target_value
 
-                    if attr_value < level_limit and attr_value < self.target_value * 2 if self._course_name == "Endurance" else level_limit:
-                        return False, {"pet_name": False, "message": "level limit"}, []
+                    if attr_value >= target_value:
+                        return False, {"pet_name": False, "message": "target value limit"}, []
                     break
 
             await self.study()
@@ -365,20 +367,19 @@ class MysteryIsland(TrainingSchool):
     
     async def start(self) -> Union[bool, dict, list]:
         try:
+            if self.target_value >= self._level_limit:
+                return False, {"pet_name": False, "message": "level limit"}, []
+            
             await self.complete()
             await self.collect()
 
             for pet in self._pets:
-                result = True
                 if pet["name"] == self._pet_name:
-                    if self._course_name == "Endurance":
-                        result = pet["attributes"][self._course_name] < self._level_limit*2
-                    else:
-                        result = pet["attributes"][self._course_name] < self._level_limit
+                    attr_value = pet["attributes"].get(self._course_name, 0)
+                    target_value = self.target_value * 2 if self._course_name == "Endurance" else self.target_value
 
-                    if result == False:
-                        return False, {"pet_name": False}, []
-                    
+                    if attr_value >= target_value:
+                        return False, {"pet_name": False, "message": "target value limit"}, []
                     break
 
             await self.study()
@@ -545,20 +546,19 @@ class SwashbucklingAcademy(TrainingSchool):
     
     async def start(self) -> Union[bool, dict, list]:
         try:
+            if self.target_value >= self._level_limit:
+                return False, {"pet_name": False, "message": "level limit"}, []
+            
             await self.complete()
             await self.collect()
 
             for pet in self._pets:
-                result = True
                 if pet["name"] == self._pet_name:
-                    if self._course_name == "Endurance":
-                        result = pet["attributes"][self._course_name] < self._level_limit*2
-                    else:
-                        result = pet["attributes"][self._course_name] < self._level_limit
+                    attr_value = pet["attributes"].get(self._course_name, 0)
+                    target_value = self.target_value * 2 if self._course_name == "Endurance" else self.target_value
 
-                    if result == False:
-                        return False, {"pet_name": False}, []
-                    
+                    if attr_value >= target_value:
+                        return False, {"pet_name": False, "message": "target value limit"}, []
                     break
 
             await self.study()
