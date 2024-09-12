@@ -5,15 +5,15 @@ from email.mime.multipart import MIMEMultipart
 
 class GmailNotify():
     def __init__(self, token: str, sender: str, receiver: str) -> None:
-        self._token = token,
+        self._token = token
         self._sender = sender
         self._receiver = receiver
 
     def notify(self, method: str = '', message: dict = {}) -> bool:
         email_body = json.dumps( \
-            message, indent=4, sort_keys=True).replace(' ', '&nbsp;').replace('\n', '<br>')
+            message, indent=4, sort_keys=True)
 
-        if self._token:
+        if not self._token:
             print(f'Gmail notify was disabled {email_body}')
             return False
 
