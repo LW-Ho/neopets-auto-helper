@@ -18,6 +18,19 @@ pip install -r requirements.txt
 python main.py
 ```
 
+# Build Docker images
+
+```
+x86
+docker buildx build --load --platform linux/amd64 -t neopets-playwright-helper-x86:latest .
+docker save -o neopets-playwright-helper-x86.tar neopets-playwright-helper-x86:latest
+
+arm64
+
+docker buildx build --load --platform linux/arm64 -t neopets-playwright-helper-arm64:latest .
+docker save -o neopets-playwright-helper-arm64.tar neopets-playwright-helper-arm64:latest
+```
+
 # Inclouded Features
 
 - Bank Collect
@@ -48,4 +61,5 @@ python main.py
 - Daily Quests
 
 # Notify use Mail
+
 The function uses the traditional Gmail sending mode and requires applying for a token from Google services in order to enable the notification feature.
