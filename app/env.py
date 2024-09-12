@@ -31,6 +31,7 @@ class NEOAccount:
     TRAINING_MYSTERY_ISLAND: dict
     TRAINING_SECRET_NINJA: dict
     AUTO_SAVE_TO_SAFTY_BOX: bool
+    GMAIL_NOTIFY: dict
 
 @dataclass
 class NEOAccountsData:

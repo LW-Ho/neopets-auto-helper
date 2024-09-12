@@ -9,6 +9,7 @@ from playwright.async_api import Playwright, async_playwright
 from playwright.async_api import Browser, BrowserContext, Page
 
 from app.account import Account
+from app.gmail import GmailNotify
 from dailies import jelly as JELLY, \
     omelette as OMELETTE, \
     fishing as FISHING, \
@@ -64,6 +65,11 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
 
         if TIME_EXPIRY.get(neoaccount.ACTIVE_PET_NAME) is None:
             TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME] = {}
+
+        gmail = GmailNotify(
+            neoaccount.GMAIL_NOTIFY["APPLICATION_TOKEN"],
+            neoaccount.GMAIL_NOTIFY["SENDER_GMAIL"],
+            neoaccount.GMAIL_NOTIFY["RECEIVER_EMAIL"])
 
         try:
             async with asyncio.TaskGroup() as tg:
@@ -248,10 +254,13 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
 
         except Exception as e:
             print(f"task group error {e}  Traceback: {traceback.format_exc()}")
+            gmail.notify('error', all_result)
 
         if neoaccount.AUTO_SAVE_TO_SAFTY_BOX:
             result = await QS.run(context, page)
             all_result['safty box'] = result
+
+        gmail.notify('ok', all_result)
 
         await context.close()
         await browser.close()

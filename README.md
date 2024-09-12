@@ -43,5 +43,9 @@ python main.py
     - Secret Ninja Training School # Level 250 up
   
 # Coming Features
+
 - Battledome
 - Daily Quests
+
+# Notify use Mail
+The function uses the traditional Gmail sending mode and requires applying for a token from Google services in order to enable the notification feature.

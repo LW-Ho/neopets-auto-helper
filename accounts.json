@@ -38,6 +38,11 @@
             "PET_COURSE_NAME": "",
             "TARGET_VALUE": 299
         },
-        "AUTO_SAVE_TO_SAFTY_BOX": true
+        "AUTO_SAVE_TO_SAFTY_BOX": true,
+        "GMAIL_NOTIFY": {
+            "APPLICATION_TOKEN": "",
+            "SENDER_GMAIL": "",
+            "RECEIVER_EMAIL": ""
+        }
     }
 }
