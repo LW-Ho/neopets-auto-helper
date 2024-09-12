@@ -44,7 +44,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
     neopets: Account = None
     try:
         browser: Browser = await playwright.chromium.launch(
-            headless=True,
+            headless=False,
             slow_mo=100
             )
         context: BrowserContext = await browser.new_context(

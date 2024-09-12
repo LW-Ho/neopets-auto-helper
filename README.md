@@ -20,6 +20,8 @@ python main.py
 
 # Build Docker images
 
+Headless mode only support legacy account.
+
 ```
 x86
 docker buildx build --load --platform linux/amd64 -t neopets-playwright-helper-x86:latest .
