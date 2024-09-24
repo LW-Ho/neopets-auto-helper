@@ -30,7 +30,7 @@ class Account:
         print(f'{self._username} logout...')
         await random_sleep(5, 10)
 
-    async def login(self, context: BrowserContext, page: Page) -> None:
+    async def login(self, context: BrowserContext, page: Page) -> bool:
         """Login API.
 
         Raises

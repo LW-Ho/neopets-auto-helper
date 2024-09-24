@@ -26,7 +26,7 @@ from utility.training_school import SwashbucklingAcademy, MysteryIsland, SecretN
 from app.env import NEOACCOUNT_DATA, NEOAccount
 
 TIME_EXPIRY: dict = {}
-SLEEP_INTERVAL = 3000
+SLEEP_INTERVAL = 2800
 
 def create_task_if_needed(flag, key, task_function, tg, tasks, time_expiry_map):
     try:
@@ -43,6 +43,13 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
     all_result = {}
     neopets: Account = None
     try:
+        if TIME_EXPIRY.get(neoaccount.ACTIVE_PET_NAME) is None:
+            TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME] = {}
+
+        time_expiry = TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME].get('Login')
+        if time_expiry is not None and time.time() < time_expiry:
+            return {neoaccount.USERNAME: all_result}
+
         browser: Browser = await playwright.chromium.launch(
             headless=False,
             slow_mo=100
@@ -63,8 +70,8 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
         r = await neopets.login(context, page)
         all_result['Login'] = r
 
-        if TIME_EXPIRY.get(neoaccount.ACTIVE_PET_NAME) is None:
-            TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME] = {}
+        if r == False:
+            TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]['Login'] = TS.get_timestamp(10)
 
         gmail = GmailNotify(
             neoaccount.GMAIL_NOTIFY["APPLICATION_TOKEN"],
