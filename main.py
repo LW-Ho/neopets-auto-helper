@@ -19,7 +19,8 @@ from dailies import jelly as JELLY, \
     trudys as TRUDYS, \
     shrine as SHRINE, \
     tombola as TOMBOLA, \
-    tdmbgpop as TDMBGPOP
+    tdmbgpop as TDMBGPOP, \
+    advent_calendar as ADVENTCALENDAR
 from utility import quick_stock as QS, random_sleep, timestamp as TS, stocks, petlab
 from utility.bank import Bank
 from utility.training_school import SwashbucklingAcademy, MysteryIsland, SecretNinja
@@ -200,7 +201,9 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                 create_task_if_needed(
                     neoaccount.TDMBGPOP_FLAG, "TDMBGPOP", lambda: TDMBGPOP.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
                 )
-                
+                create_task_if_needed(
+                    neoaccount.ADVENTCALENDAR_FLAG, "ADVENTCALENDAR", lambda: ADVENTCALENDAR.get(context, page), tg, tasks, TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]
+                )
                 if neoaccount.TVW_EVENT_FLAG:
                     create_task_if_needed(
                         True, "TVW_HOSPITAL", partial(TVW_EVENT.get_hosptial, context, page, active_pet_name=neoaccount.ACTIVE_PET_NAME), 

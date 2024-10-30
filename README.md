@@ -45,6 +45,7 @@ docker save -o neopets-playwright-helper-arm64.tar neopets-playwright-helper-arm
 - Shrine
 - Tombola
 - Tdmbgpop
+- Advent Calendar
 - The Void Within Event
     - Hosiptal
     - Void Location

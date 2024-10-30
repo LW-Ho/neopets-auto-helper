@@ -22,6 +22,7 @@ class NEOAccount:
     SHRINE_FLAG: bool
     TOMBOLA_FLAG: bool
     TDMBGPOP_FLAG: bool
+    ADVENTCALENDAR_FLAG: bool
     PETLAB_FLAG: bool
     PETLAB_NAME: str
     PETPETLAB_FLAG: bool

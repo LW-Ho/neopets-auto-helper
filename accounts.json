@@ -18,6 +18,7 @@
         "SHRINE_FLAG": true,
         "TOMBOLA_FLAG": true,
         "TDMBGPOP_FLAG": true,
+        "ADVENTCALENDAR_FLAG": true,
         "PETLAB_FLAG": false,
         "PETLAB_NAME": "",
         "PETPETLAB_FLAG": false,
