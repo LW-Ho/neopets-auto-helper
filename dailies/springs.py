@@ -4,14 +4,15 @@ from utility import random_sleep
 
 async def get(context: BrowserContext, page: Page) -> bool:
     await random_sleep()
+    _flag = False
+    _page = await context.new_page()
     try:
-        _page = await context.new_page()
         await _page.goto(NEOPETS_URLS.NEO_SPRINGS)
         await _page.get_by_role("button", name="Heal my Pets").click()
         await random_sleep()
-        await _page.close()
-        return True
+        _flag = True
     except Exception as e:
         print("get_springs complete")
 
-    return False
+    await _page.close()
+    return _flag
