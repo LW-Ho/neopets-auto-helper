@@ -27,7 +27,7 @@ from utility.training_school import SwashbucklingAcademy, MysteryIsland, SecretN
 from app.env import NEOACCOUNT_DATA, NEOAccount
 
 TIME_EXPIRY: dict = {}
-SLEEP_INTERVAL = 2800
+SLEEP_INTERVAL = 6800
 
 def create_task_if_needed(flag, key, task_function, tg, tasks, time_expiry_map):
     try:
@@ -52,7 +52,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
             return {neoaccount.USERNAME: all_result}
 
         browser: Browser = await playwright.chromium.launch(
-            headless=False,
+            headless=True,
             slow_mo=100
             )
         context: BrowserContext = await browser.new_context(

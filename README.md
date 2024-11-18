@@ -4,9 +4,9 @@ This project uses Python Playwright to achieve asynchronous operations for compl
 
 # How to config my neopets account
 Please follow the fields in the accounts.json file to set up the accounts: <br>
-Set `LEGACY` to ==True== if the account has not yet been linked to NeoPass. <br>
+Set `LEGACY` to `True` if the account has not yet been linked to NeoPass. <br>
 Set `USERNAME` and `PASSWORD` as the account's username and password.<br>
-If set to ==False==, please input the NeoPass email and password for `USERNAME` and `PASSWORD`, and input the Neopets username for `NEOPASS_USERNAME`.
+If set to `False`, please input the NeoPass email and password for `USERNAME` and `PASSWORD`, and input the Neopets username for `NEOPASS_USERNAME`.
 
 # How to run
 
@@ -20,7 +20,7 @@ python main.py
 
 # Build Docker images
 
-Headless mode only support legacy account.
+When Headless mode set True, NeoPass login sometimes it may fail; the interval needs to be extended.
 
 ```
 x86
@@ -28,7 +28,6 @@ docker buildx build --load --platform linux/amd64 -t neopets-playwright-helper-x
 docker save -o neopets-playwright-helper-x86.tar neopets-playwright-helper-x86:latest
 
 arm64
-
 docker buildx build --load --platform linux/arm64 -t neopets-playwright-helper-arm64:latest .
 docker save -o neopets-playwright-helper-arm64.tar neopets-playwright-helper-arm64:latest
 ```
