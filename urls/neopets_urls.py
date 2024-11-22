@@ -28,22 +28,28 @@ NEO_TRUDYS = "https://www.neopets.com/trudys_surprise.phtml?delevent=yes"
 NEO_TRUDYS_SPIN = "https://www.neopets.com/trudydaily/ajax/claimprize.php"
 
 NEO_FISHING = "https://www.neopets.com/water/fishing.phtml"
+NEO_FISHING_PROCESS = "https://www.neopets.com/water/fishing.phtml"
 
 NEO_TOMBOLA = "https://www.neopets.com/island/tombola.phtml"
 NEO_TOMBOLA_PLAY = "https://www.neopets.com/island/tombola2.phtml"
 
 NEO_TDMBGPOP = "https://www.neopets.com/faerieland/tdmbgpop.phtml"
+NEO_TDMBGPOP_PROCESS = "https://www.neopets.com/faerieland/tdmbgpop.phtml"
 
 NEO_SPRINGS = "https://www.neopets.com/faerieland/springs.phtml"
+NEO_SPRINGS_PROCESS = "https://www.neopets.com/faerieland/springs.phtml"
 NEO_STICKY = "https://www.neopets.com/faerieland/process_springs.phtml?obj_info_id=8429"
 
 NEO_OMELETTE = "https://www.neopets.com/prehistoric/omelette.phtml"
 
 NEO_JELLY = "https://www.neopets.com/jelly/jelly.phtml"
+NEO_JELLY_PROCESS = "https://www.neopets.com/jelly/jelly.phtml"
 
 NEO_FRUIT = "https://www.neopets.com/desert/fruit/index.phtml"
+NEO_FRUIT_PROCESS = "https://www.neopets.com/desert/fruit/index.phtml"
 
 NEO_SHRINE = "https://www.neopets.com/desert/shrine.phtml"
+NEO_SHRINE_PROCESS = "https://www.neopets.com/desert/shrine.phtml"
 
 NEO_STOCKLIST = "https://www.neopets.com/stockmarket.phtml"
 NEO_STOCK_BUY_PROCESS = "https://www.neopets.com/process_stockmarket.phtml"
