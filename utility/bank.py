@@ -1,7 +1,7 @@
 from playwright.async_api import Page, BrowserContext
 from typing import Optional
 import urls.neopets_urls as NEOPETS_URLS
-from utility import random_sleep, PlayWrightInstance
+from utility import random_sleep, PlayWrightInstance, web
 
 class Bank(PlayWrightInstance):
     def __init__(self, context: BrowserContext, page: Page, pin_code: Optional[str] = None) -> None:
@@ -32,10 +32,11 @@ class Bank(PlayWrightInstance):
     async def collect_interest(self) -> bool:
         await random_sleep()
         try:
-            await self._page.goto(NEOPETS_URLS.NEO_BANK)
+            await self._page.goto(NEOPETS_URLS.NEO_BANK, wait_until="load", timeout=120000)
             await random_sleep()
-            await self._page.get_by_role("button", name="Collect Interest").click()
-            await random_sleep()
+            post_payload = {"type": "approach"}
+            rep = await web.post(post_payload, NEOPETS_URLS.NEO_BANK_INTEREST, self._context, self._page, NEOPETS_URLS.NEO_BANK)
+            await random_sleep(11,15)
             return True
 
         except Exception as e:
