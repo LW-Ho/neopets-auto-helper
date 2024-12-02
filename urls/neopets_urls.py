@@ -23,6 +23,7 @@ STOCK_MARKET_LIST = "https://www.neopets.com/stockmarket.phtml?type=list&full=tr
 #DAILIES
 NEO_ADVENT_CALENDAR = "https://www.neopets.com/winter/adventcalendar.phtml"
 NEO_PROCESS_ADVENT = "https://www.neopets.com/winter/process_adventcalendar.phtml"
+NEO_PROCESS_ADVENT_CALENDAR = "https://www.neopets.com/np-templates/ajax/adventcalendar.php"
 
 NEO_TRUDYS = "https://www.neopets.com/trudys_surprise.phtml?delevent=yes"
 NEO_TRUDYS_SPIN = "https://www.neopets.com/trudydaily/ajax/claimprize.php"
