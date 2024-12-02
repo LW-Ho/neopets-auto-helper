@@ -70,6 +70,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
         print(f'{neopets._username} / {neopets._neopass_username} Login...')
         r = await neopets.login(context, page)
         all_result['Login'] = r
+        all_result['UserInfo'] = [neoaccount.USERNAME, neoaccount.ACTIVE_PET_NAME]
 
         if r == False:
             TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]['Login'] = TS.get_timestamp(10)
