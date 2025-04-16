@@ -1,3 +1,4 @@
+import re
 from playwright.async_api import Page, BrowserContext
 from typing import Optional
 import urls.neopets_urls as NEOPETS_URLS
@@ -34,13 +35,19 @@ class Bank(PlayWrightInstance):
         try:
             await self._page.goto(NEOPETS_URLS.NEO_BANK, wait_until="load", timeout=120000)
             await random_sleep()
-            post_payload = {"type": "approach"}
-            rep = await web.post(post_payload, NEOPETS_URLS.NEO_BANK_INTEREST, self._context, self._page, NEOPETS_URLS.NEO_BANK)
+
+            ref_ck_value = await self._page.get_attribute('input[name="_ref_ck"]', 'value')
+
+            post_payload = {"type": "interest", "_ref_ck": ref_ck_value}
+            
+            rep = await web.post_form_data(
+                post_payload, NEOPETS_URLS.NEO_BANK_NEW_INTEREST, self._context, self._page, NEOPETS_URLS.NEO_BANK
+            )
             await random_sleep(11,15)
             return True
 
         except Exception as e:
-            print("bank.collect_interest complete")
+            print(f"bank.collect_interest complete {e}")
 
         return False
 

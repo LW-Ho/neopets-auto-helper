@@ -1,4 +1,3 @@
-import traceback
 from playwright.async_api import Page, BrowserContext
 import urls.neopets_urls as NEOPETS_URLS
 from utility import random_sleep, PlayWrightInstance
@@ -50,7 +49,7 @@ class Stock(PlayWrightInstance):
                 if npanchor < shares * price:
                     bank.withdraw((shares * price) - npanchor)
 
-                ref = await self._page.locator('input[name="_ref_ck"]').get_attribute("value")
+                ref = await self._page.get_attribute('input[name="_ref_ck"]', 'value')
                 payload = {"_ref_ck": ref, "type": "buy", "ticker_symbol": ticker, "amount_shares": shares}
                 rep = await web.post(payload, NEOPETS_URLS.NEO_STOCK_BUY_PROCESS, self._context, self._page, NEOPETS_URLS.NEO_STOCK_BUY+ticker)
 
@@ -66,11 +65,7 @@ class Stock(PlayWrightInstance):
             await self._page.goto(NEOPETS_URLS.NEO_STOCK_PORTFOILO, timeout=120000)
             await random_sleep()
 
-            ref_value = ''
-
-            ref_element = await self._page.query_selector('input[name="_ref_ck"]')
-            if ref_element:
-                ref_value = await ref_element.get_attribute('value')
+            ref_value = await self._page.get_attribute('input[name="_ref_ck"]', 'value')
 
             tables = await self._page.query_selector_all('table[align="center"][cellpadding="3"] table')
             result = []

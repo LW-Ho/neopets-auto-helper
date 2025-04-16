@@ -99,7 +99,7 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
                         TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME][key] = TS.get_timestamp(8)
                 
                 if neoaccount.BUY_STOCK_FLAG:
-                    key = "but_stocks"
+                    key = "buy_stocks"
                     time_expiry = TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME].get(key)
                     if time_expiry is None or time.time() > time_expiry:
 

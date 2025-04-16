@@ -16,6 +16,7 @@ NEO_INVENTORY_R = "https://www.neopets.com/inventory.phtml"
 #BANK
 NEO_BANK = "https://www.neopets.com/bank.phtml"
 NEO_BANK_INTEREST = "https://www.neopets.com/process_bank.phtml"
+NEO_BANK_NEW_INTEREST = "https://www.neopets.com/np-templates/ajax/process_bank.php"
 
 #STOCK MARKET
 STOCK_MARKET_LIST = "https://www.neopets.com/stockmarket.phtml?type=list&full=true"
