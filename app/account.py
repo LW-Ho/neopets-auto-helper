@@ -97,24 +97,43 @@ class Account:
         await random_sleep(10, 15)
         while count < 5:
             try:
+                await page.evaluate("""
+                        Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+                    """)
+
+                await page.mouse.move(randrange(1, 300), randrange(1, 300))
                 # Avoid reChatcha v3 
                 email_field_box = await page.locator("input[name=\"email\"]").bounding_box()
                 if email_field_box:
-                    await page.mouse.click(email_field_box['x'] + randrange(1, 50), email_field_box['y'] + randrange(1,10))
-                    await page.locator("input[name=\"email\"]").fill(self._username)
+                    await page.mouse.click(email_field_box['x'] + randrange(1, 100), email_field_box['y'] + randrange(1,30))
+                    await page.locator("input[name=\"email\"]").type(self._username, delay=200)
                     
                 await random_sleep(2, 5)
+                await page.mouse.move(randrange(1, 300), randrange(1, 300))
                 
                 password_field_box = await page.locator("input[name=\"password\"]").bounding_box()
                 if password_field_box:
-                    await page.mouse.click(password_field_box['x'] + randrange(1, 50), password_field_box['y'] + randrange(1,10))
-                    await page.locator("input[name=\"password\"]").fill(self._password)
-                    
+                    await page.mouse.click(password_field_box['x'] + randrange(1, 100), password_field_box['y'] + randrange(1,30))
+                    await page.locator("input[name=\"password\"]").type(self._password, delay=300)
+
                 await random_sleep(2, 5)
                 await page.keyboard.press('Tab')
                 await random_sleep(1,2)
                 await page.keyboard.press('Tab')
                 await random_sleep(1,2)
+                await page.keyboard.press('Tab')
+                await random_sleep(1,2)
+                await page.keyboard.press('Space')
+                await random_sleep(3,5)
+                await page.keyboard.press('Tab')
+                await random_sleep(1,2)
+                await page.keyboard.press('Tab')
+                await random_sleep(1,2)
+                await page.keyboard.press('Tab')
+                await random_sleep(1,2)
+                await page.keyboard.press('Tab')
+                await random_sleep(1,2)
+                await page.mouse.move(randrange(1, 300), randrange(1, 300))
                 await page.keyboard.press('Enter')
 
                 await page.wait_for_load_state('networkidle')
@@ -133,9 +152,9 @@ class Account:
 
         account_field_box = await page.locator(f"text={self._neopass_username}").bounding_box()
         if account_field_box:
-            await page.mouse.click(account_field_box['x'] + randrange(1, 50), account_field_box['y'] + randrange(1,10))
+            await page.mouse.click(account_field_box['x'] + randrange(1, 50), account_field_box['y'] + randrange(1,10), delay=200)
 
-        await page.get_by_role("button", name="Continue").click()
+        await page.get_by_role("button", name="Continue").click(delay=200)
         await random_sleep(10, 15)
 
     async def _login_account_legacy(self, context: BrowserContext, page: Page):

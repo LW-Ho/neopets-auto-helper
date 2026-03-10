@@ -7,6 +7,7 @@ import time
 import traceback
 from playwright.async_api import Playwright, async_playwright
 from playwright.async_api import Browser, BrowserContext, Page
+from camoufox.async_api import AsyncCamoufox
 
 from app.account import Account
 from app.gmail import GmailNotify
@@ -51,10 +52,10 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
         if time_expiry is not None and time.time() < time_expiry:
             return {neoaccount.USERNAME: all_result}
 
-        browser: Browser = await playwright.chromium.launch(
-            headless=True,
-            slow_mo=100
-            )
+        camoufox = AsyncCamoufox(
+            headless=True
+        )
+        browser: Browser = await camoufox.start()
         context: BrowserContext = await browser.new_context(
             viewport={"width":800,"height":600}
             )
