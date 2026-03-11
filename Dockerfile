@@ -1,10 +1,6 @@
-FROM python:3.12-bookworm
+FROM apify/actor-python-playwright-camoufox:3.12-1.58.0
 
-WORKDIR /neopets
-COPY . /neopets/
-
-RUN pip install playwright==1.48.0 && \
-    playwright install --with-deps
+COPY . ./
 
 RUN pip install -r requirements.txt
 

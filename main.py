@@ -53,9 +53,11 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
             return {neoaccount.USERNAME: all_result}
 
         camoufox = AsyncCamoufox(
-            headless=True
+            headless=False
         )
         browser: Browser = await camoufox.start()
+
+
         context: BrowserContext = await browser.new_context(
             viewport={"width":800,"height":600}
             )
@@ -291,10 +293,15 @@ async def main() -> None:
         for account in NEOACCOUNT_DATA.accounts:
             TIME_EXPIRY[account.ACTIVE_PET_NAME] = {}
 
-    async with async_playwright() as playwright:
-        tasks = [run(playwright, account) for account in NEOACCOUNT_DATA.accounts]
-        result = await asyncio.gather(*tasks)
+    for account in NEOACCOUNT_DATA.accounts:
+        result = await run(async_playwright(), account)
+        # result = await asyncio.gather(*tasks)
         _report.append(result)
+
+    # async with async_playwright() as playwright:
+    #     tasks = [run(playwright, account) for account in NEOACCOUNT_DATA.accounts]
+    #     result = await asyncio.gather(*tasks)
+    #     _report.append(result)
 
     print(f'Work done, {json.dumps(_report, indent=4)} ')
     
