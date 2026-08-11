@@ -1,16 +1,14 @@
 import asyncio
 from functools import partial
 import json
-from pathlib import Path
-from os.path import exists
+import sys
 import time
 import traceback
-from playwright.async_api import Playwright, async_playwright
 from playwright.async_api import Browser, BrowserContext, Page
 from camoufox.async_api import AsyncCamoufox
 
 from app.account import Account
-from app.gmail import GmailNotify
+from app.notify import build_notifier
 from dailies import jelly as JELLY, \
     omelette as OMELETTE, \
     fishing as FISHING, \
@@ -22,13 +20,12 @@ from dailies import jelly as JELLY, \
     tombola as TOMBOLA, \
     tdmbgpop as TDMBGPOP, \
     advent_calendar as ADVENTCALENDAR
-from utility import quick_stock as QS, random_sleep, timestamp as TS, stocks, petlab
+from utility import quick_stock as QS, timestamp as TS, stocks, petlab
 from utility.bank import Bank
 from utility.training_school import SwashbucklingAcademy, MysteryIsland, SecretNinja
-from app.env import NEOACCOUNT_DATA, NEOAccount
+from app.env import load_account, NEOAccount
 
 TIME_EXPIRY: dict = {}
-SLEEP_INTERVAL = 6800
 
 def create_task_if_needed(flag, key, task_function, tg, tasks, time_expiry_map):
     try:
@@ -40,10 +37,11 @@ def create_task_if_needed(flag, key, task_function, tg, tasks, time_expiry_map):
     except Exception as e:
         print(e)
 
-async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
+async def run(neoaccount: NEOAccount) -> None:
     global TIME_EXPIRY
     all_result = {}
-    neopets: Account = None
+    browser: Browser = None
+    context: BrowserContext = None
     try:
         if TIME_EXPIRY.get(neoaccount.ACTIVE_PET_NAME) is None:
             TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME] = {}
@@ -52,15 +50,9 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
         if time_expiry is not None and time.time() < time_expiry:
             return {neoaccount.USERNAME: all_result}
 
-        camoufox = AsyncCamoufox(
-            headless=False
-        )
-        browser: Browser = await camoufox.start()
-
-
-        context: BrowserContext = await browser.new_context(
-            viewport={"width":800,"height":600}
-            )
+        camoufox = AsyncCamoufox(headless=False)
+        browser = await camoufox.start()
+        context = await browser.new_context(viewport={"width":800,"height":600})
         page: Page = await context.new_page()
 
         neopets: Account = Account(
@@ -75,13 +67,16 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
         all_result['Login'] = r
         all_result['UserInfo'] = [neoaccount.USERNAME, neoaccount.ACTIVE_PET_NAME]
 
-        if r == False:
-            TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]['Login'] = TS.get_timestamp(10)
+        notifier = build_notifier(neoaccount)
 
-        gmail = GmailNotify(
-            neoaccount.GMAIL_NOTIFY["APPLICATION_TOKEN"],
-            neoaccount.GMAIL_NOTIFY["SENDER_GMAIL"],
-            neoaccount.GMAIL_NOTIFY["RECEIVER_EMAIL"])
+        if r == False:
+            # Login failed: skip every daily task. Running them while logged out
+            # only makes each one navigate and fail, which wastes minutes and can
+            # look like the process is "stuck". Record the cooldown, alert, and bail.
+            TIME_EXPIRY[neoaccount.ACTIVE_PET_NAME]['Login'] = TS.get_timestamp(10)
+            print(f"{neoaccount.USERNAME} login failed; skipping all tasks.")
+            notifier.notify('error', all_result)
+            return {neoaccount.USERNAME: all_result}
 
         try:
             async with asyncio.TaskGroup() as tg:
@@ -268,48 +263,50 @@ async def run(playwright: Playwright, neoaccount: NEOAccount) -> None:
 
         except Exception as e:
             print(f"task group error {e}  Traceback: {traceback.format_exc()}")
-            gmail.notify('error', all_result)
+            notifier.notify('error', all_result)
 
         if neoaccount.AUTO_SAVE_TO_SAFTY_BOX:
             result = await QS.run(context, page)
             all_result['safty box'] = result
 
-        gmail.notify('ok', all_result)
+        notifier.notify('ok', all_result)
 
-        await context.close()
-        await browser.close()
     except Exception as e:
         print(f"{e}")
+    finally:
+        if context is not None:
+            await context.close()
+        if browser is not None:
+            await browser.close()
 
     return {neoaccount.USERNAME: all_result}
 
-async def main() -> None:
+async def main() -> int:
     global TIME_EXPIRY
-    _report = []
-    time_path = f"time/time_expiry.json"
-    if exists(time_path):
-        TIME_EXPIRY = json.loads(Path(time_path).read_text())
-    else:
-        for account in NEOACCOUNT_DATA.accounts:
-            TIME_EXPIRY[account.ACTIVE_PET_NAME] = {}
+    account = load_account()
 
-    for account in NEOACCOUNT_DATA.accounts:
-        result = await run(async_playwright(), account)
-        # result = await asyncio.gather(*tasks)
-        _report.append(result)
+    # Stateless run: no cooldown records are read or written, so every container starts
+    # clean and attempts all enabled tasks. Timing is controlled externally (by whatever
+    # schedules the `docker run`). Cookies still persist per-account via sessions/.
+    TIME_EXPIRY = {account.ACTIVE_PET_NAME: {}}
 
-    # async with async_playwright() as playwright:
-    #     tasks = [run(playwright, account) for account in NEOACCOUNT_DATA.accounts]
-    #     result = await asyncio.gather(*tasks)
-    #     _report.append(result)
+    try:
+        result = await run(account)
+    except Exception as e:
+        print(f"{account.USERNAME} run error: {e}  Traceback: {traceback.format_exc()}")
+        result = {account.USERNAME: {"Login": False}}
 
-    print(f'Work done, {json.dumps(_report, indent=4)} ')
-    
-    Path("time").mkdir(parents=True, exist_ok=True)
-    Path(f"time/time_expiry.json").write_text(json.dumps(TIME_EXPIRY, indent=4))
+    print(f'Work done, {json.dumps(result, indent=4, ensure_ascii=False)} ')
 
-    await random_sleep(SLEEP_INTERVAL+200,SLEEP_INTERVAL+600)
+    # Exit code lets a scheduler detect a failed run. Exit 0 ONLY on a confirmed login;
+    # an empty result (browser/setup crash) means nothing ran, so it must be non-zero.
+    all_result = result.get(account.USERNAME, {}) if isinstance(result, dict) else {}
+    return 0 if all_result.get("Login") else 1
 
 if __name__ == "__main__":
-    while True:
-        asyncio.run(main())
+    try:
+        exit_code = asyncio.run(main())
+    except Exception as e:
+        print(f"Fatal error: {e}  Traceback: {traceback.format_exc()}")
+        exit_code = 1
+    sys.exit(exit_code)

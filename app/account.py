@@ -46,8 +46,11 @@ class Account:
             except Exception as e:
                 print(f"{self._username} Login error {e}")
                 await self.logout(context, page)
-            
-            await random_sleep(10, 240)
+
+            # Short in-process backoff only. One run == one account then exit, so
+            # spacing between attempts is the external scheduler's job; a long sleep
+            # here just makes a failed run look frozen for minutes.
+            await random_sleep(10, 30)
             count += 1
         
         return False
@@ -72,6 +75,7 @@ class Account:
                     print(f"{_username_t} Login Success.")
                     await self._store_cookie(context, page)
                 else:
+                    await self._dump_debug(page, "login_confirm_fail")
                     raise NotLoggedInException("Raised when we cannot confirm we've logged in successfully.")
             print(f"{_username_t} Login Success using Cookie.")
         else:
@@ -80,6 +84,7 @@ class Account:
                 print(f"{_username_t} Login Success.")
                 await self._store_cookie(context, page)
             else:
+                await self._dump_debug(page, "login_confirm_fail")
                 raise NotLoggedInException("Raised when we cannot confirm we've logged in successfully.")
             
     async def _login_account_portal(self, context: BrowserContext, page: Page):
@@ -198,6 +203,27 @@ class Account:
             print(f"Permission denied to remove {file_path}.")
         except Exception as e:
             print(f"Error occurred: {e}")
+
+    async def _dump_debug(self, page: Page, label: str) -> None:
+        '''
+        Save the current page's HTML + a screenshot so we can see WHY login could
+        not be confirmed (wrong password page, captcha/challenge, announcement,
+        empty response, etc.). Artifacts land in debug/. Never raises.
+        '''
+        try:
+            _username_t = self._username if self._legacy else self._neopass_username
+            Path("debug").mkdir(parents=True, exist_ok=True)
+            base = f"debug/{_username_t}_{label}"
+            html = await page.content()
+            Path(f"{base}.html").write_text(html, encoding="utf-8")
+            await page.screenshot(path=f"{base}.png", full_page=True)
+            # Quick hint in the log without needing to open the files.
+            markers = [m for m in ("password", "incorrect", "captcha", "recaptcha",
+                                   "bg-pattern", "login") if m in html.lower()]
+            print(f"[debug] url={page.url} len={len(html)} markers={markers} "
+                  f"-> saved {base}.html / {base}.png")
+        except Exception as e:
+            print(f"[debug] dump failed: {e}")
 
     async def _confirm_manual_login(self, page: Page) -> bool:
         '''

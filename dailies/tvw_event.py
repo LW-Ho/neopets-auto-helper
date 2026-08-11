@@ -85,7 +85,9 @@ async def get_hosptial(context: BrowserContext, page: Page, active_pet_name: str
                 # read: 3
                 break
 
-        while True:
+        complete_count = 0
+        while complete_count < 20:
+            complete_count += 1
             await _page.goto(NEOPETS_URLS.NEO_HOSPITAL_VOLUNTEER_HOME_PAGE, timeout=120000)
             await random_sleep()
             content = await _page.content()
@@ -192,42 +194,41 @@ async def get_void_location(context: BrowserContext, page: Page) -> bool:
     try:
         for _map in void_essence_location_map_link:
             _page = await context.new_page()
-            await _page.goto(_map, timeout=120000)
-            await random_sleep()
-            
-            content = await _page.content()
+            try:
+                await _page.goto(_map, timeout=120000)
+                await random_sleep()
 
-            if 'placeEssenceOnMap' in content:
-                ck_match = re.search(r"function getCK\(\) \{\s*return '([^']+)';\s*\}", content)
-                ck_value = ck_match.group(1) if ck_match else None
+                content = await _page.content()
 
-                essence_match = re.search(r"placeEssenceOnMap\((\[.*?\])\);", content, re.DOTALL)
-                essence_array = eval(essence_match.group(1)) if essence_match else None
+                if 'placeEssenceOnMap' in content:
+                    ck_match = re.search(r"function getCK\(\) \{\s*return '([^']+)';\s*\}", content)
+                    ck_value = ck_match.group(1) if ck_match else None
 
-                # collect data
-                data = {
-                    "ck": ck_value,
-                    "essence": essence_array
-                }
-                for _essence in data["essence"]:
-                    payload = {
-                        "hash": str(_essence['hash']),
-                        "id": str(_essence['id']),
-                        "day": str(_essence['day']),
-                        "_ref_ck": str(data['ck'])
+                    essence_match = re.search(r"placeEssenceOnMap\((\[.*?\])\);", content, re.DOTALL)
+                    essence_array = eval(essence_match.group(1)) if essence_match else None
+
+                    data = {
+                        "ck": ck_value,
+                        "essence": essence_array
                     }
-                    rep = await web.post_form_data(
-                        payload, NEOPETS_URLS.NEO_TVW_COLLECT_VOID, context, _page, _map
-                    )
-                    await random_sleep()
-                    
-                    rep_json = json.loads(rep)
-                    print(rep_json)
-                    if rep_json.get('showComplete'):
-                        await _page.close()
-                        return True
+                    for _essence in data["essence"]:
+                        payload = {
+                            "hash": str(_essence['hash']),
+                            "id": str(_essence['id']),
+                            "day": str(_essence['day']),
+                            "_ref_ck": str(data['ck'])
+                        }
+                        rep = await web.post_form_data(
+                            payload, NEOPETS_URLS.NEO_TVW_COLLECT_VOID, context, _page, _map
+                        )
+                        await random_sleep()
 
-            await _page.close()
+                        rep_json = json.loads(rep)
+                        print(rep_json)
+                        if rep_json.get('showComplete'):
+                            return True
+            finally:
+                await _page.close()
 
         return True
     except Exception as e:

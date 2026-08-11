@@ -1,6 +1,6 @@
 import json
-from dataclasses import dataclass
-from typing import List
+import os
+from dataclasses import dataclass, field
 
 @dataclass
 class NEOAccount:
@@ -32,14 +32,32 @@ class NEOAccount:
     TRAINING_MYSTERY_ISLAND: dict
     TRAINING_SECRET_NINJA: dict
     AUTO_SAVE_TO_SAFTY_BOX: bool
-    GMAIL_NOTIFY: dict
+    GMAIL_NOTIFY: dict = field(default_factory=dict)
+    # NOTIFY_METHOD selects which channel(s) receive run summaries:
+    # "gmail", "telegram", or "both"/"all" (a list of channels is also accepted).
+    NOTIFY_METHOD: str = "gmail"
+    TELEGRAM_NOTIFY: dict = field(default_factory=dict)
 
-@dataclass
-class NEOAccountsData:
-    accounts: List[NEOAccount] 
+# Default account file used when ACCOUNT_FILE is not set. One container == one
+# account: point ACCOUNT_FILE at a single-account JSON (see account.example.json).
+DEFAULT_ACCOUNT_FILE = "account.json"
 
-with open('accounts.json', 'r', encoding='utf-8') as file:
-    data = json.load(file)
 
-accounts = [NEOAccount(**account_data) for account_data in data.values()]
-NEOACCOUNT_DATA = NEOAccountsData(accounts=accounts)
+def load_account(path: str | None = None) -> NEOAccount:
+    '''
+    Load one account from a single-account JSON file. Path resolution:
+    explicit ``path`` arg -> ACCOUNT_FILE env var -> DEFAULT_ACCOUNT_FILE.
+    The file must be a flat single-account object (see account.example.json).
+    '''
+    path = path or os.environ.get("ACCOUNT_FILE", DEFAULT_ACCOUNT_FILE)
+
+    with open(path, "r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    if "USERNAME" not in data:
+        raise ValueError(
+            f"{path} is not a single-account file. It must be a flat JSON object with "
+            "the account fields at the top level (see account.example.json)."
+        )
+
+    return NEOAccount(**data)

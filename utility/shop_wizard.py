@@ -143,18 +143,22 @@ class ShopWizard(PlayWrightInstance):
 
     async def buy(self, item: str, quantity = 1, max_searches = 10, max_price=99999) -> dict:
         prices_paid = {}
+        _page = await self._context.new_page()
+        _saved_page = self._page
+        self._page = _page
+        try:
+            Item_Search = await self.__search(item, max_searches, max_price=max_price)
 
-        self._page = await self._context.new_page()
-
-        Item_Search = await self.__search(item, max_searches, max_price=max_price)
-
-        if Item_Search.cheapest_result() != None and self.__shopwizard_ban != True:
-            for i in range(quantity):
-                try:
-                    await self.__open_shop(Item_Search)
-                    prices_paid = await self.__send_purchase_request(Item_Search)
-                except Exception as e:
-                    print(f"{__name__} error {e} shop.buy {traceback.format_exc()}")
+            if Item_Search.cheapest_result() != None and self.__shopwizard_ban != True:
+                for i in range(quantity):
+                    try:
+                        await self.__open_shop(Item_Search)
+                        prices_paid = await self.__send_purchase_request(Item_Search)
+                    except Exception as e:
+                        print(f"{__name__} error {e} shop.buy {traceback.format_exc()}")
+        finally:
+            self._page = _saved_page
+            await _page.close()
 
         return prices_paid
     

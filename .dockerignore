@@ -2,4 +2,18 @@
 ./Dockerfile
 *.tar
 test*
-camoufox
+camoufox*
+
+# Never bake credentials or per-run state into the image; mount at runtime.
+accounts/
+accounts.json
+account.json
+
+# Runtime state directories (bind-mounted at run time).
+sessions/
+time/
+
+# Local dev cruft that bloats the image.
+venv/
+.git/
+__pycache__/

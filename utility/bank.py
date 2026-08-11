@@ -11,16 +11,15 @@ class Bank(PlayWrightInstance):
     
     async def get_on_hand_npanchor(self) -> int:
         _page = await self._context.new_page()
-        await _page.goto(NEOPETS_URLS.NEO_BANK)
-        await random_sleep(5,10)
         try:
+            await _page.goto(NEOPETS_URLS.NEO_BANK)
+            await random_sleep(5,10)
             tag = await _page.locator('span#npanchor').inner_text()
-            value = int(tag.replace(",", ""))
-
-            return value
+            return int(tag.replace(",", ""))
         except Exception as e:
-            print(f"{__name__} error {e}")    
-            
+            print(f"{__name__} error {e}")
+        finally:
+            await _page.close()
         return 0
 
     def set_pin_code(self, pin_code="") -> bool:
@@ -63,7 +62,7 @@ class Bank(PlayWrightInstance):
             await self._page.locator("#frmWithdraw input[name=\"amount\"]").click()
             await self._page.locator("#frmWithdraw input[name=\"amount\"]").fill(str(price))
             await random_sleep()
-            self._page.on("dialog", lambda dialog: dialog.accept())
+            self._page.once("dialog", lambda dialog: dialog.accept())
             await self._page.get_by_role("button", name="Withdraw").click()
             await random_sleep()
             return True
@@ -80,7 +79,7 @@ class Bank(PlayWrightInstance):
             await self._page.locator("#frmDeposit").get_by_role("textbox").click()
             await self._page.locator("#frmDeposit").get_by_role("textbox").fill(str(price))
             await random_sleep()
-            self._page.on("dialog", lambda dialog: dialog.accept())
+            self._page.once("dialog", lambda dialog: dialog.accept())
             await self._page.get_by_role("button", name="Deposit").click()
             await random_sleep()
             return True

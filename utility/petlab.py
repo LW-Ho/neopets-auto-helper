@@ -9,8 +9,8 @@ class PetLab(PlayWrightInstance):
         self._pet_name = pet_name
 
     async def run(self) -> bool:
+        _page = await self._context.new_page()
         try:
-            _page = await self._context.new_page()
             await _page.goto(NEOPETS_URLS.NEO_PET_LAB2, timeout=120000)
             await random_sleep()
 
@@ -23,7 +23,8 @@ class PetLab(PlayWrightInstance):
             return True
         except Exception as e:
             print(f"{__name__} error {e}")
-
+        finally:
+            await _page.close()
         return False
     
 class PetpetLab(PlayWrightInstance):
@@ -32,8 +33,8 @@ class PetpetLab(PlayWrightInstance):
         self.pet_name = pet_name # chosen pet name not petpet name
 
     async def run(self) -> bool:
+        _page = await self._context.new_page()
         try:
-            _page = await self._context.new_page()
             await _page.goto(NEOPETS_URLS.NEO_PETPET_LAB, timeout=120000)
             await random_sleep()
 
@@ -46,5 +47,6 @@ class PetpetLab(PlayWrightInstance):
             return True
         except Exception as e:
             print(f"{__name__} error {e}")
-
+        finally:
+            await _page.close()
         return False

@@ -165,4 +165,10 @@ cython_debug/
 sessions/
 time/
 test*
-camoufox
+camoufox*
+CLAUDE.md
+
+# Per-account credentials. Keep only the template (account.example.json).
+accounts/
+account.json
+accounts.json
