@@ -3,6 +3,7 @@
 *.tar
 test*
 camoufox*
+debug/
 
 # Never bake credentials or per-run state into the image; mount at runtime.
 accounts/
