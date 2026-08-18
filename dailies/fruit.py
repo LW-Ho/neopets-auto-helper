@@ -8,7 +8,7 @@ async def get(context: BrowserContext, page: Page) -> bool:
     await random_sleep()
     _page = await context.new_page()
     try:
-        await _page.goto(NEOPETS_URLS.NEO_FRUIT, wait_until="load", timeout=120000)
+        await web.goto(_page, NEOPETS_URLS.NEO_FRUIT)
         _content = await _page.content()
         if "Please come back tomorrow and try again" not in _content:
             ck_match = re.search(r"function getCK\(\) \{\s*return '([^']+)';\s*\}", _content)

@@ -7,7 +7,7 @@ async def get(context: BrowserContext, page: Page) -> bool:
     _flag = False
     _page = await context.new_page()
     try:
-        await _page.goto(NEOPETS_URLS.NEO_JELLY, wait_until="load", timeout=120000)
+        await web.goto(_page, NEOPETS_URLS.NEO_JELLY)
         post_payload = {"type": "get_jelly"}
         rep = await web.post(post_payload, NEOPETS_URLS.NEO_JELLY_PROCESS, context, _page, NEOPETS_URLS.NEO_JELLY)
         await random_sleep(11,15)

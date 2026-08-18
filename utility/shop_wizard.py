@@ -48,7 +48,7 @@ class ShopWizard(PlayWrightInstance):
 
             search_results_page_source = await web.post(payload, NEOPETS_URLS.NEO_SHOP_WIZARD, self._context, self._page, referer=referer)
             self.__check_shopwizard_ban(search_results_page_source)
-            await self._page.set_content(search_results_page_source)
+            await self._page.set_content(search_results_page_source, wait_until="domcontentloaded")
             await random_sleep(1,3)
             if self.__shopwizard_ban == False:
                 new_search.add_shops(await self.__parse_search())
@@ -116,7 +116,7 @@ class ShopWizard(PlayWrightInstance):
     async def __open_shop(self, Item_Search: "ItemSearch"):
         if Item_Search.cheapest_result():
 
-            await self._page.goto(NEOPETS_URLS.NEO_SHOP_REFFER_HOME_PAGE + Item_Search.cheapest_result().shop_link, timeout=120000)
+            await web.goto(self._page, NEOPETS_URLS.NEO_SHOP_REFFER_HOME_PAGE + Item_Search.cheapest_result().shop_link)
             await random_sleep()
 
             content = await self._page.content()
@@ -126,7 +126,7 @@ class ShopWizard(PlayWrightInstance):
                 if Item_Search.cheapest_result() is None:
                     return 
                 
-                await self._page.goto(NEOPETS_URLS.NEO_SHOP_REFFER_HOME_PAGE + Item_Search.cheapest_result().shop_link, timeout=120000)
+                await web.goto(self._page, NEOPETS_URLS.NEO_SHOP_REFFER_HOME_PAGE + Item_Search.cheapest_result().shop_link)
                 await random_sleep()
                 content = await self._page.content()
 

@@ -11,7 +11,7 @@ class PetLab(PlayWrightInstance):
     async def run(self) -> bool:
         _page = await self._context.new_page()
         try:
-            await _page.goto(NEOPETS_URLS.NEO_PET_LAB2, timeout=120000)
+            await web.goto(_page, NEOPETS_URLS.NEO_PET_LAB2)
             await random_sleep()
 
             payload = {"chosen": self._pet_name}
@@ -35,7 +35,7 @@ class PetpetLab(PlayWrightInstance):
     async def run(self) -> bool:
         _page = await self._context.new_page()
         try:
-            await _page.goto(NEOPETS_URLS.NEO_PETPET_LAB, timeout=120000)
+            await web.goto(_page, NEOPETS_URLS.NEO_PETPET_LAB)
             await random_sleep()
 
             payload = {"chosen": self.pet_name}

@@ -1,10 +1,18 @@
 import json
+import os
+from datetime import datetime
 from random import randrange
 from playwright.async_api import Page, BrowserContext
 from os.path import exists
 from pathlib import Path
 import urls.neopets_urls as NEOPETS_URLS
 from utility import random_sleep, web
+
+# Cap the debug/ folder so failed-login artifacts (HTML + screenshot per dump)
+# can't fill the disk over months of scheduled runs. Keep the newest N files;
+# each incident writes 2 files, so 40 == ~20 most recent incidents. Override per
+# container with `-e DEBUG_KEEP_FILES=...`.
+DEBUG_KEEP_FILES = int(os.environ.get("DEBUG_KEEP_FILES", "40"))
 
 class NotLoggedInException(Exception):
     pass
@@ -65,7 +73,7 @@ class Account:
         if exists(cookie_path):
             await context.add_cookies(json.loads(Path(cookie_path).read_text()))
             print(f"{_username_t} Loading cookie file.")
-            await page.goto(NEOPETS_URLS.NEO_BANK, wait_until="load", timeout=60000)
+            await page.goto(NEOPETS_URLS.NEO_BANK, wait_until="domcontentloaded", timeout=60000)
             await random_sleep(5, 10)
 
             if not await  self._confirm_manual_login(page):
@@ -155,11 +163,48 @@ class Account:
             else:
                 break
 
-        account_field_box = await page.locator(f"text={self._neopass_username}").bounding_box()
-        if account_field_box:
-            await page.mouse.click(account_field_box['x'] + randrange(1, 50), account_field_box['y'] + randrange(1,10), delay=200)
+        # ---- Account selection page (account.neopets.com/classic/login) ----
+        # NeoPass lists the linked Neopets accounts here; the "Continue" button
+        # stays DISABLED until one is selected. The old code blind-clicked it,
+        # which just burns the 30s locator timeout when nothing got selected and
+        # hides *why*. Instead: select the account, then wait for the button to
+        # actually become enabled before clicking, and dump debug on failure.
+        account = page.locator(f"text={self._neopass_username}").first
+        try:
+            await account.wait_for(state="visible", timeout=20000)
+            await account.click(delay=200)
+        except Exception:
+            # Account name never rendered -> the email/password step upstream
+            # almost certainly failed (reCAPTCHA / wrong credentials), or
+            # NEOPASS_USERNAME doesn't match the displayed name.
+            await self._dump_debug(page, "neopass_account_not_listed")
+            raise NotLoggedInException(
+                f"NeoPass account '{self._neopass_username}' not shown on the "
+                f"selection page (url={page.url}). The email/password login "
+                f"likely failed (reCAPTCHA) or NEOPASS_USERNAME is wrong."
+            )
 
-        await page.get_by_role("button", name="Continue").click(delay=200)
+        continue_btn = page.get_by_role("button", name="Continue")
+        try:
+            await continue_btn.wait_for(state="visible", timeout=10000)
+            # Wait for the selection to enable the button rather than clicking it
+            # while disabled (which is what timed out before).
+            await page.wait_for_function(
+                """() => {
+                    const b = [...document.querySelectorAll('button')]
+                        .find(el => el.textContent.trim() === 'Continue');
+                    return !!b && !b.disabled;
+                }""",
+                timeout=10000,
+            )
+        except Exception:
+            await self._dump_debug(page, "neopass_continue_disabled")
+            raise NotLoggedInException(
+                "NeoPass 'Continue' stayed disabled — account selection didn't "
+                f"register (url={page.url})."
+            )
+
+        await continue_btn.click(delay=200)
         await random_sleep(10, 15)
 
     async def _login_account_legacy(self, context: BrowserContext, page: Page):
@@ -213,7 +258,10 @@ class Account:
         try:
             _username_t = self._username if self._legacy else self._neopass_username
             Path("debug").mkdir(parents=True, exist_ok=True)
-            base = f"debug/{_username_t}_{label}"
+            # Timestamp the filename so successive failures keep a short history
+            # (instead of overwriting); _prune_debug() below bounds the total.
+            ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+            base = f"debug/{_username_t}_{label}_{ts}"
             html = await page.content()
             Path(f"{base}.html").write_text(html, encoding="utf-8")
             await page.screenshot(path=f"{base}.png", full_page=True)
@@ -222,14 +270,37 @@ class Account:
                                    "bg-pattern", "login") if m in html.lower()]
             print(f"[debug] url={page.url} len={len(html)} markers={markers} "
                   f"-> saved {base}.html / {base}.png")
+            self._prune_debug()
         except Exception as e:
             print(f"[debug] dump failed: {e}")
+
+    def _prune_debug(self) -> None:
+        '''
+        Keep debug/ bounded to the DEBUG_KEEP_FILES most recent files, deleting
+        the oldest first. Runs after each dump so the newest artifacts survive.
+        Never raises.
+        '''
+        try:
+            files = [p for p in Path("debug").glob("*") if p.is_file()]
+            if len(files) <= DEBUG_KEEP_FILES:
+                return
+            files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+            stale = files[DEBUG_KEEP_FILES:]
+            for p in stale:
+                try:
+                    p.unlink()
+                except OSError:
+                    pass
+            print(f"[debug] pruned {len(stale)} old artifact(s), "
+                  f"kept newest {DEBUG_KEEP_FILES}.")
+        except Exception as e:
+            print(f"[debug] prune failed: {e}")
 
     async def _confirm_manual_login(self, page: Page) -> bool:
         '''
         Check if logged in.
         '''
-        await page.goto(NEOPETS_URLS.NEO_BANK, wait_until="load", timeout=60000)
+        await page.goto(NEOPETS_URLS.NEO_BANK, wait_until="domcontentloaded", timeout=60000)
         content = await page.content()
         if self._legacy:
             if f'userlookup.phtml?user={self._username}' in content:

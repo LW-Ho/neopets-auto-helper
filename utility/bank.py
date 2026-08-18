@@ -12,7 +12,7 @@ class Bank(PlayWrightInstance):
     async def get_on_hand_npanchor(self) -> int:
         _page = await self._context.new_page()
         try:
-            await _page.goto(NEOPETS_URLS.NEO_BANK)
+            await web.goto(_page, NEOPETS_URLS.NEO_BANK, ready_selector='span#npanchor')
             await random_sleep(5,10)
             tag = await _page.locator('span#npanchor').inner_text()
             return int(tag.replace(",", ""))
@@ -32,7 +32,7 @@ class Bank(PlayWrightInstance):
     async def collect_interest(self) -> bool:
         await random_sleep()
         try:
-            await self._page.goto(NEOPETS_URLS.NEO_BANK, wait_until="load", timeout=120000)
+            await web.goto(self._page, NEOPETS_URLS.NEO_BANK, ready_selector='input[name="_ref_ck"]')
             await random_sleep()
 
             ref_ck_value = await self._page.get_attribute('input[name="_ref_ck"]', 'value')
@@ -53,7 +53,7 @@ class Bank(PlayWrightInstance):
     async def withdraw(self, price: int = 1) -> bool:
         await random_sleep()
         try:
-            await self._page.goto(NEOPETS_URLS.NEO_BANK)
+            await web.goto(self._page, NEOPETS_URLS.NEO_BANK, ready_selector='#frmWithdraw')
             await random_sleep()
             if self._pin_code:
                 await self._page.locator("#pin_field").click()
@@ -74,7 +74,7 @@ class Bank(PlayWrightInstance):
     async def deposit(self, price: int = 1) -> bool:
         await random_sleep()
         try:
-            await self._page.goto(NEOPETS_URLS.NEO_BANK)
+            await web.goto(self._page, NEOPETS_URLS.NEO_BANK, ready_selector='#frmDeposit')
             await random_sleep()
             await self._page.locator("#frmDeposit").get_by_role("textbox").click()
             await self._page.locator("#frmDeposit").get_by_role("textbox").fill(str(price))

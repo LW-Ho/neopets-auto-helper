@@ -17,7 +17,7 @@ class Stock(PlayWrightInstance):
         min_price = 15
         lowest_price = 20
 
-        await self._page.goto(NEOPETS_URLS.STOCK_MARKET_LIST)
+        await web.goto(self._page, NEOPETS_URLS.STOCK_MARKET_LIST, ready_selector='td[align="center"][bgcolor="#eeeeff"]')
         stock_params = await self._page.locator('td[align="center"][bgcolor="#eeeeff"]').all()
         for index in range(0, len(stock_params), 5):
             _stock_price = await stock_params[index+3].inner_text()
@@ -43,7 +43,7 @@ class Stock(PlayWrightInstance):
 
             if ticker:
                 
-                await self._page.goto(NEOPETS_URLS.NEO_STOCK_BUY+ticker)
+                await web.goto(self._page, NEOPETS_URLS.NEO_STOCK_BUY+ticker, ready_selector='input[name="_ref_ck"]')
                 await random_sleep()
 
                 if npanchor < shares * price:
@@ -62,7 +62,7 @@ class Stock(PlayWrightInstance):
     
     async def sell_stock(self) -> Tuple[bool, dict]:
         try:
-            await self._page.goto(NEOPETS_URLS.NEO_STOCK_PORTFOILO, timeout=120000)
+            await web.goto(self._page, NEOPETS_URLS.NEO_STOCK_PORTFOILO, ready_selector='input[name="_ref_ck"]')
             await random_sleep()
 
             ref_value = await self._page.get_attribute('input[name="_ref_ck"]', 'value')

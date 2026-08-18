@@ -12,7 +12,7 @@ async def get(context: BrowserContext, page: Page) -> bool:
         _flag = False
         _page = await context.new_page()
         try:
-            await _page.goto(NEOPETS_URLS.NEO_ADVENT_CALENDAR)
+            await web.goto(_page, NEOPETS_URLS.NEO_ADVENT_CALENDAR)
 
             content = await _page.content()
 

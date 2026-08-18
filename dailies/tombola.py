@@ -7,7 +7,7 @@ async def get(context: BrowserContext, page: Page) -> bool:
     _flag = False
     _page = await context.new_page()
     try:
-        await _page.goto(NEOPETS_URLS.NEO_TOMBOLA, wait_until="load", timeout=120000)
+        await web.goto(_page, NEOPETS_URLS.NEO_TOMBOLA)
         await random_sleep()
         post_payload = {}
         rep = await web.post(post_payload, NEOPETS_URLS.NEO_TOMBOLA_PLAY, context, _page, NEOPETS_URLS.NEO_TOMBOLA)

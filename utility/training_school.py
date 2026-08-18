@@ -94,7 +94,6 @@ class SecretNinja(TrainingSchool):
 
     async def buy(self) -> bool:
         try:
-            await self._page.goto(NEOPETS_URLS.NEO_SECRET_NINJA_TRAINING_SCHOOL_STATUS, timeout=120000)
             await self.collect()
 
             shopWizard = shop_wizard.ShopWizard(self._context, self._page)
@@ -124,7 +123,7 @@ class SecretNinja(TrainingSchool):
 
     async def collect(self) -> list[str]:
         try:
-            await self._page.goto(NEOPETS_URLS.NEO_SECRET_NINJA_TRAINING_SCHOOL_STATUS, timeout=120000)
+            await web.goto(self._page, NEOPETS_URLS.NEO_SECRET_NINJA_TRAINING_SCHOOL_STATUS, ready_selector='table[width="500"]')
             await random_sleep()
 
             rows = await self._page.query_selector_all('table[width="500"] tr')
@@ -265,7 +264,6 @@ class MysteryIsland(TrainingSchool):
 
     async def buy(self) -> bool:
         try:
-            await self._page.goto(NEOPETS_URLS.NEO_MYSTERY_ISLAND_TRAINING_SCHOOL_STATUS, timeout=120000)
             await self.collect()
 
             shopWizard = shop_wizard.ShopWizard(self._context, self._page)
@@ -295,7 +293,7 @@ class MysteryIsland(TrainingSchool):
 
     async def collect(self) -> list[str]:
         try:
-            await self._page.goto(NEOPETS_URLS.NEO_MYSTERY_ISLAND_TRAINING_SCHOOL_STATUS, timeout=120000)
+            await web.goto(self._page, NEOPETS_URLS.NEO_MYSTERY_ISLAND_TRAINING_SCHOOL_STATUS, ready_selector='table[width="500"]')
             await random_sleep()
 
             rows = await self._page.query_selector_all('table[width="500"] tr')
@@ -437,7 +435,6 @@ class SwashbucklingAcademy(TrainingSchool):
 
     async def buy(self) -> bool:
         try:
-            await self._page.goto(NEOPETS_URLS.NEO_SWASHBUCKLING_ACADEMY_STATUS, timeout=120000)
             await self.collect()
 
             shopWizard = shop_wizard.ShopWizard(self._context, self._page)
@@ -472,7 +469,7 @@ class SwashbucklingAcademy(TrainingSchool):
 
     async def collect(self) -> None:
         try:
-            await self._page.goto(NEOPETS_URLS.NEO_SWASHBUCKLING_ACADEMY_STATUS, timeout=120000)
+            await web.goto(self._page, NEOPETS_URLS.NEO_SWASHBUCKLING_ACADEMY_STATUS, ready_selector='table[width="500"]')
             await random_sleep()
 
             rows = await self._page.query_selector_all('table[width="500"] tr')

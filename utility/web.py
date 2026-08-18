@@ -1,10 +1,75 @@
 
+import asyncio
 from typing import Optional
 from urllib.parse import quote_plus, urlencode
 from playwright.async_api import APIResponse
 from playwright.async_api import Page, BrowserContext
+from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 import urls.neopets_urls as NEOPETS_URLS
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0"
+
+# --- Tolerant navigation -------------------------------------------------------
+# Neopets pages hang on ad/tracker/image subresources, so the old
+# `page.goto(url, wait_until="load")` sat until the 120s timeout and then RAISED,
+# killing the task BEFORE its real work (a page.request POST, or a scrape of the
+# already-parsed initial HTML) could run. `goto()` below navigates with
+# wait_until="domcontentloaded" (inline scripts that set getCK/_ref_ck tokens
+# still execute; only the load-event subresources that stall are skipped) and
+# never raises on a navigation timeout. A nav-level semaphore caps how many pages
+# render at once, since all dailies/training run concurrently in one headed
+# Camoufox instance. NOTE: this is deliberately NOT used in the login flow
+# (app/account.py) so NeoPass/reCAPTCHA rendering is never weakened.
+
+NAV_CONCURRENCY = 5
+_NAV_SEMAPHORE: Optional[asyncio.Semaphore] = None
+
+def _nav_semaphore() -> asyncio.Semaphore:
+    # Created lazily inside the running loop so it binds to the correct loop.
+    global _NAV_SEMAPHORE
+    if _NAV_SEMAPHORE is None:
+        _NAV_SEMAPHORE = asyncio.Semaphore(NAV_CONCURRENCY)
+    return _NAV_SEMAPHORE
+
+async def goto(page: Page, url: str, *, timeout: int = 45000, ready_selector: Optional[str] = None) -> bool:
+    """Navigate tolerantly and report whether the page is usable.
+
+    - wait_until="domcontentloaded": HTML parsed + inline scripts run, but we do
+      NOT wait for ads/trackers/images (the source of the hangs/timeouts).
+    - Only the load-event TIMEOUT is swallowed (not raised): that is the ad-hang
+      case where the DOM is already present and we want to proceed. A hard
+      navigation failure (DNS/connection/SSL) is NOT swallowed — it propagates so
+      the caller's own try/except records the task as failed instead of running
+      its POST and falsely reporting success.
+    - If ready_selector is given, we confirm THAT element exists. This both
+      verifies the correct page loaded (guards against scraping a stale DOM on a
+      reused page) and is the success signal for DOM-scraping callers.
+
+    Pure-POST callers can ignore the return value; the POST runs regardless.
+    """
+    async with _nav_semaphore():
+        try:
+            await page.goto(url, wait_until="domcontentloaded", timeout=timeout)
+        except PlaywrightTimeoutError:
+            pass
+
+        if ready_selector:
+            try:
+                await page.wait_for_selector(ready_selector, state="attached", timeout=timeout)
+                return True
+            except Exception:
+                return False
+
+        try:
+            state = await page.evaluate("document.readyState")
+            if state in ("interactive", "complete"):
+                return True
+        except Exception:
+            pass
+        try:
+            content = await page.content()
+            return len(content) > 500 and "</html>" in content.lower()
+        except Exception:
+            return False
 
 def check_for_announcement(response):
     if 'class="bg-pattern"' in response:

@@ -163,6 +163,7 @@ cython_debug/
 
 # Repository
 sessions/
+logs/
 time/
 test*
 camoufox*
